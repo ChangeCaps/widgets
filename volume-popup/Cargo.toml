@@ -1,0 +1,8 @@
+[package]
+name = "volume-popup"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+ori-native = { git = "https://github.com/ori-ui/ori-native" }
+libpulse-binding = "2.30"
