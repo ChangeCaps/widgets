@@ -4,5 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-ori-native = { git = "https://github.com/ori-ui/ori-native" }
+tokio = { version = "1", features = ["time"] }
 libpulse-binding = "2.30"
+
+[dependencies.ori-native]
+git = "https://github.com/ori-ui/ori-native"
+features = ["layer-shell"]
