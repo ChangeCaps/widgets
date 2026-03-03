@@ -1,0 +1,20 @@
+[package]
+name = "notifier"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tokio = { version = "1", features = ["time"] }
+anyhow = "1"
+chrono = "0.4"
+dbus = "0.9"
+dbus-crossroads = "0.5"
+
+[dependencies.image]
+version = "0.25"
+default-features = false
+features = ["bmp"]
+
+[dependencies.ori-native]
+git = "https://github.com/ori-ui/ori-native"
+features = ["layer-shell"]

@@ -7,6 +7,7 @@ pkgs.mkShell rec {
     pkgs.gtk4-layer-shell
     pkgs.librsvg
     pkgs.pulseaudio
+    pkgs.dbus
   ];
 
   LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath buildInputs;
