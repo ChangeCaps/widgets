@@ -76,7 +76,8 @@ fn volume_bar(fraction: f32) -> impl View<Data> + use<> {
     transition(fraction, Ease(0.05), |fraction, _| {
         row(row(())
             .background_color(theme::PRIMARY)
-            .width(Fraction(fraction)))
+            .width(Fraction(fraction))
+            .corner(4.0))
         .background_color(Color::BLACK.fade(0.4))
         .size(200.0, 8.0)
         .corner(4.0)
