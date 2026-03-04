@@ -9,6 +9,7 @@ fn main() {
         .cloned()
         .enumerate()
         .map(|(i, _)| (i, 0))
+        .rev()
         .collect();
 
     let mut data = Data {
@@ -74,7 +75,7 @@ impl Data {
 
         self.sorted.sort_by_key(|(_, score)| *score);
         self.sorted.reverse();
-        self.select = self.select.min(self.sorted.len() - 1);
+        self.select = self.select.min(self.sorted.len().saturating_sub(1));
     }
 
     fn launch(&mut self, _text: String) {
@@ -100,8 +101,12 @@ fn ui(data: &Data) -> impl Effect<Data> + use<> {
         .sorted
         .iter()
         .enumerate()
-        .map(|(i, (e, _))| entry(&data.entries[*e], i == data.select))
-        .collect::<Vec<_>>();
+        .filter_map(|(i, (e, _))| {
+            let entry = entry(&data.entries[*e], i, i == data.select)?;
+
+            Some((*e, entry))
+        })
+        .collect::<Keyed<_, _>>();
 
     let shell = layer_shell(
         column((
@@ -132,7 +137,7 @@ fn ui(data: &Data) -> impl Effect<Data> + use<> {
         .size(600.0, 400.0),
     )
     .sizing(Sizing::Content)
-    .keyboard(KeyboardInput::Exclusive)
+    .keyboard(KeyboardInput::OnDemand)
     .on_key(NamedKey::Escape, Modifiers::empty(), |_| -> () {
         std::process::exit(0);
     })
@@ -146,20 +151,28 @@ fn ui(data: &Data) -> impl Effect<Data> + use<> {
     effects(shell)
 }
 
-fn entry(entry: &DesktopEntry, selected: bool) -> Option<impl View<Data> + use<>> {
-    let name = entry.name::<&str>(&[])?;
-
-    let color = match selected {
-        true => Color::BLACK.fade(0.2),
-        false => Color::TRANSPARENT,
-    };
+fn entry(entry: &DesktopEntry, index: usize, selected: bool) -> Option<impl View<Data> + use<>> {
+    let name = entry.name::<&str>(&[])?.to_string();
 
     Some(
-        row(text(name)
-            .color(Color::WHITE.fade(0.5))
-            .family("Ubuntu Light"))
-        .background_color(color)
-        .padding(8.0)
-        .corner(8.0),
+        pressable(move |_, state| {
+            let color = match selected {
+                true => Color::BLACK.fade(0.2),
+                false => match state.hovered {
+                    true => Color::WHITE.fade(0.1),
+                    false => Color::TRANSPARENT,
+                },
+            };
+
+            row(text(&name)
+                .color(Color::WHITE.fade(0.5))
+                .family("Ubuntu Light"))
+            .background_color(color)
+            .padding(8.0)
+            .corner(8.0)
+        })
+        .on_press(move |data: &mut Data| {
+            data.select = index;
+        }),
     )
 }

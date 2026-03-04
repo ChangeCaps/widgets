@@ -1044,7 +1044,7 @@ checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
 [[package]]
 name = "ori"
 version = "0.1.0"
-source = "git+https://github.com/ori-ui/ori#0a9e2bfb9a93173f11571a95fae2df9bb1b6a297"
+source = "git+https://github.com/ori-ui/ori#2fb2c631a6ad4d87732d7dc9059386e6fe5c1d60"
 
 [[package]]
 name = "ori-native"
