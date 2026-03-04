@@ -4,13 +4,10 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+ori-native = { workspace = true }
 tokio = { version = "1", features = ["full"] }
 gdk4 = "0.10"
 chrono = "0.4"
-
-[dependencies.ori-native]
-git = "https://github.com/ori-ui/ori-native"
-features = ["layer-shell"]
 
 [dependencies.hyprland]
 version = "0.4.0-beta.3"

@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+ori-native = { workspace = true }
 tokio = { version = "1", features = ["time"] }
 anyhow = "1"
 chrono = "0.4"
@@ -15,6 +16,3 @@ version = "0.25"
 default-features = false
 features = ["bmp"]
 
-[dependencies.ori-native]
-git = "https://github.com/ori-ui/ori-native"
-features = ["layer-shell"]

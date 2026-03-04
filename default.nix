@@ -9,12 +9,13 @@ pkgs.rustPlatform.buildRustPackage {
     lockFile = ./Cargo.lock;
     outputHashes = {
       "ori-0.1.0" = "sha256-VqQ2SSJiqnjvG7GeeXJJrg1p4ZYdSo4GBM+BAkcaUjg=";
-      "ori-native-0.1.0" = "sha256-6SFTpqNfnuMmJ4tU08pnq/XfzkILlAIS92URCith90k=";
+      "ori-native-0.1.0" = "sha256-LHCNNnyIPxOUqOnGODgHGmNoLW+kJaCHvd6NRX1C9Jw=";
     };
   };
 
   nativeBuildInputs = [
     pkgs.pkg-config
+    pkgs.rust-analyzer
   ];
 
   buildInputs = [

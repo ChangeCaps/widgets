@@ -1,0 +1,165 @@
+use freedesktop_desktop_entry::{DesktopEntry, desktop_entries};
+use nucleo_matcher::{Config, Matcher, Utf32Str};
+use ori_native::prelude::*;
+
+fn main() {
+    let entries = desktop_entries(&[]);
+    let sorted = entries
+        .iter()
+        .cloned()
+        .enumerate()
+        .map(|(i, _)| (i, 0))
+        .collect();
+
+    let mut data = Data {
+        entries,
+        sorted,
+        select: 0,
+        search: String::new(),
+    };
+
+    App::new().run(&mut data, ui).unwrap();
+}
+
+mod theme {
+    use ori_native::prelude::*;
+
+    pub static BACKGROUND: Color = Color::hex("#353535");
+    pub static OUTLINE: Color = Color::hex("#ffffff").fade(0.1);
+}
+
+struct Data {
+    entries: Vec<DesktopEntry>,
+    sorted: Vec<(usize, u16)>,
+    select: usize,
+    search: String,
+}
+
+impl Data {
+    fn next(&mut self) {
+        self.select += 1;
+        self.select = self.select.min(self.sorted.len() - 1);
+    }
+
+    fn prev(&mut self) {
+        self.select = self.select.saturating_sub(1);
+    }
+
+    fn search(&mut self, text: String) {
+        self.search = text;
+
+        let mut search_buf = Vec::new();
+        let mut name_buf = Vec::new();
+
+        let search = Utf32Str::new(&self.search, &mut search_buf);
+
+        let mut config = Config::DEFAULT;
+        config.ignore_case = true;
+
+        let mut matcher = Matcher::new(config);
+
+        self.sorted = self
+            .entries
+            .iter()
+            .enumerate()
+            .filter_map(|(i, e)| {
+                let name = e.name::<&str>(&[])?;
+                let name = Utf32Str::new(&name, &mut name_buf);
+
+                let score = matcher.fuzzy_match(name, search)?;
+
+                Some((i, score))
+            })
+            .collect();
+
+        self.sorted.sort_by_key(|(_, score)| *score);
+        self.sorted.reverse();
+        self.select = self.select.min(self.sorted.len() - 1);
+    }
+
+    fn launch(&mut self, _text: String) {
+        let (index, _) = self.sorted[self.select];
+        let entry = &self.entries[index];
+
+        if let Ok(exec) = entry.parse_exec()
+            && let Some(command) = exec.first()
+        {
+            #[allow(clippy::zombie_processes)]
+            std::process::Command::new(command)
+                .args(exec.iter().skip(1))
+                .spawn()
+                .unwrap();
+
+            std::process::exit(0);
+        }
+    }
+}
+
+fn ui(data: &Data) -> impl Effect<Data> + use<> {
+    let entries = data
+        .sorted
+        .iter()
+        .enumerate()
+        .map(|(i, (e, _))| entry(&data.entries[*e], i == data.select))
+        .collect::<Vec<_>>();
+
+    let shell = layer_shell(
+        column((
+            row(textinput()
+                .text(&data.search)
+                .size(16.0)
+                .flex(1.0)
+                .family("Ubuntu Light")
+                .color(Color::WHITE)
+                .newline(Newline::None)
+                .on_change(Data::search)
+                .on_submit(Data::launch))
+            .padding(8.0)
+            .border_bottom(2.0)
+            .border_color(theme::OUTLINE),
+            vscroll(column(entries)),
+        ))
+        .background_color(theme::BACKGROUND)
+        .border_color(theme::OUTLINE)
+        .border(1.0)
+        .corner(8.0)
+        .padding(12.0)
+        .gap(8.0)
+        .shadow_color(Color::BLACK.fade(0.4))
+        .shadow_radius(8.0)
+        .shadow_offset(2.0, 3.0)
+        .margin(12.0)
+        .size(600.0, 400.0),
+    )
+    .sizing(Sizing::Content)
+    .keyboard(KeyboardInput::Exclusive)
+    .on_key(NamedKey::Escape, Modifiers::empty(), |_| -> () {
+        std::process::exit(0);
+    })
+    .on_key('n', Modifiers::CONTROL, Data::next)
+    .on_key('p', Modifiers::CONTROL, Data::prev)
+    .on_key('j', Modifiers::CONTROL, Data::next)
+    .on_key('k', Modifiers::CONTROL, Data::prev)
+    .on_key(NamedKey::ArrowDown, Modifiers::empty(), Data::next)
+    .on_key(NamedKey::ArrowUp, Modifiers::empty(), Data::prev);
+
+    effects(shell)
+}
+
+fn entry(entry: &DesktopEntry, selected: bool) -> Option<impl View<Data> + use<>> {
+    let name = entry.name::<&str>(&[])?;
+
+    let color = match selected {
+        true => Color::BLACK.fade(0.2),
+        false => Color::TRANSPARENT,
+    };
+
+    Some(
+        row(text(name)
+            .color(Color::WHITE.fade(0.5))
+            .family("Ubuntu Light"))
+        .background_color(color)
+        .padding(8.0)
+        .corner(8.0),
+    )
+}
