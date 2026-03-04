@@ -63,6 +63,10 @@ fn volume_window(data: &Data) -> impl Effect<Data> + use<> {
         .flex(1.0)
         .background_color(theme::BACKGROUND)
         .border_color(theme::OUTLINE)
+        .shadow_color(Color::BLACK.fade(0.4))
+        .shadow_radius(8.0)
+        .shadow_offset(2.0, 3.0)
+        .margin(12.0)
         .border(1.0)
         .corner(8.0),
     )
@@ -76,7 +80,7 @@ fn volume_bar(fraction: f32) -> impl View<Data> + use<> {
     transition(fraction, Ease(0.05), |fraction, _| {
         row(row(())
             .background_color(theme::PRIMARY)
-            .width(Fraction(fraction))
+            .width(Fract(fraction))
             .corner(4.0))
         .background_color(Color::BLACK.fade(0.4))
         .size(200.0, 8.0)

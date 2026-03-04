@@ -9,7 +9,7 @@ pkgs.rustPlatform.buildRustPackage {
     lockFile = ./Cargo.lock;
     outputHashes = {
       "ori-0.1.0" = "sha256-VqQ2SSJiqnjvG7GeeXJJrg1p4ZYdSo4GBM+BAkcaUjg=";
-      "ori-native-0.1.0" = "sha256-cicvMczPcDpDE5MtFbza0h4ozbYpZ2hRswT3fZ0pM68=";
+      "ori-native-0.1.0" = "sha256-6SFTpqNfnuMmJ4tU08pnq/XfzkILlAIS92URCith90k=";
     };
   };
 

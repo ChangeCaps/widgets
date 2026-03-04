@@ -902,7 +902,7 @@ source = "git+https://github.com/ori-ui/ori#0a9e2bfb9a93173f11571a95fae2df9bb1b6
 [[package]]
 name = "ori-native"
 version = "0.1.0"
-source = "git+https://github.com/ori-ui/ori-native#2730e1440c2bab8d68a8034cd2679a2195bd09ec"
+source = "git+https://github.com/ori-ui/ori-native#f0022acbac35fc45926a8838dd240f411fcb5081"
 dependencies = [
  "ori",
  "ori-native-core",
@@ -913,7 +913,7 @@ dependencies = [
 [[package]]
 name = "ori-native-core"
 version = "0.1.0"
-source = "git+https://github.com/ori-ui/ori-native#2730e1440c2bab8d68a8034cd2679a2195bd09ec"
+source = "git+https://github.com/ori-ui/ori-native#f0022acbac35fc45926a8838dd240f411fcb5081"
 dependencies = [
  "ori",
  "seahash",
@@ -924,7 +924,7 @@ dependencies = [
 [[package]]
 name = "ori-native-gtk4"
 version = "0.1.0"
-source = "git+https://github.com/ori-ui/ori-native#2730e1440c2bab8d68a8034cd2679a2195bd09ec"
+source = "git+https://github.com/ori-ui/ori-native#f0022acbac35fc45926a8838dd240f411fcb5081"
 dependencies = [
  "gdk4",
  "gio",
