@@ -55,9 +55,6 @@ pub fn contents(menu: &Menu, monitor_index: usize) -> impl View<Menu> + use<> {
             .align_items(Align::Center)
             .flex(0.0);
 
-        row(contents)
-            .width(width)
-            .background_color(Color::hex("#282828"))
-            .overflow(Overflow::Hidden)
+        row(contents).width(width).overflow(Overflow::Hidden)
     })
 }

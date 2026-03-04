@@ -49,6 +49,7 @@ fn ui(data: &Data) -> impl Effect<Data> + use<> {
                 .anchor_top(true)
                 .anchor_bottom(true)
                 .sizing(Sizing::Content)
+                .namespace("bar-widget")
         })
         .collect::<Vec<_>>();
 
@@ -90,4 +91,5 @@ fn bar(data: &Data, monitor_index: usize) -> impl View<Data> + use<> {
         ),
         bar,
     ))
+    .background_color(Color::hex("#282828"))
 }
