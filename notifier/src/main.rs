@@ -6,7 +6,7 @@ use ori_native::{Proxied, prelude::*};
 use dbus::{Notification, NotifyMessage};
 
 fn main() {
-    App::new().run(&mut Data::new(), ui);
+    App::new().run(&mut Data::new(), ui).unwrap();
 }
 
 struct Data {

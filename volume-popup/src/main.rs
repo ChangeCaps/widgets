@@ -22,7 +22,7 @@ fn main() {
         changed: Instant::now(),
     };
 
-    App::new().run(&mut data, ui);
+    App::new().run(&mut data, ui).unwrap();
 }
 
 struct Data {
