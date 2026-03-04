@@ -21,11 +21,17 @@ impl Menu {
 }
 
 pub fn button(monitor_index: usize) -> impl View<Menu> + use<> {
-    pressable(move |menu: &Menu, _state| {
-        let color = match menu.open.contains(&monitor_index) {
+    pressable(move |menu: &Menu, state| {
+        let mut color = match menu.open.contains(&monitor_index) {
             true => theme::ACCENT,
             false => theme::SURFACE,
         };
+
+        if state.pressed {
+            color = color.fade(0.6);
+        } else if state.hovered {
+            color = color.fade(0.8);
+        }
 
         transition(color, Ease(0.1), |color, _| {
             image(include_bytes!("../icon/menu.svg"))
