@@ -1044,12 +1044,12 @@ checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
 [[package]]
 name = "ori"
 version = "0.1.0"
-source = "git+https://github.com/ori-ui/ori#2fb2c631a6ad4d87732d7dc9059386e6fe5c1d60"
+source = "git+https://github.com/ori-ui/ori#215167ee5e4abcc4f40c8026e8da35a3d6ed77f0"
 
 [[package]]
 name = "ori-native"
 version = "0.1.0"
-source = "git+https://github.com/ori-ui/ori-native#8a43c550937b3204052dc0b59f72e404e33dc689"
+source = "git+https://github.com/ori-ui/ori-native#05728d1436c1def927e09e19e85773772baff120"
 dependencies = [
  "ori",
  "ori-native-core",
@@ -1060,7 +1060,7 @@ dependencies = [
 [[package]]
 name = "ori-native-core"
 version = "0.1.0"
-source = "git+https://github.com/ori-ui/ori-native#8a43c550937b3204052dc0b59f72e404e33dc689"
+source = "git+https://github.com/ori-ui/ori-native#05728d1436c1def927e09e19e85773772baff120"
 dependencies = [
  "keyboard-types",
  "ori",
@@ -1072,7 +1072,7 @@ dependencies = [
 [[package]]
 name = "ori-native-gtk4"
 version = "0.1.0"
-source = "git+https://github.com/ori-ui/ori-native#8a43c550937b3204052dc0b59f72e404e33dc689"
+source = "git+https://github.com/ori-ui/ori-native#05728d1436c1def927e09e19e85773772baff120"
 dependencies = [
  "gdk4",
  "gio",
@@ -1500,9 +1500,9 @@ dependencies = [
 
 [[package]]
 name = "toml_edit"
-version = "0.25.3+spec-1.1.0"
+version = "0.25.4+spec-1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a0a07913e63758bc95142d9863a5a45173b71515e68b690cad70cf99c3255ce1"
+checksum = "7193cbd0ce53dc966037f54351dbbcf0d5a642c7f0038c382ef9e677ce8c13f2"
 dependencies = [
  "indexmap",
  "toml_datetime 1.0.0+spec-1.1.0",

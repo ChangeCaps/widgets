@@ -101,12 +101,8 @@ fn ui(data: &Data) -> impl Effect<Data> + use<> {
         .sorted
         .iter()
         .enumerate()
-        .filter_map(|(i, (e, _))| {
-            let entry = entry(&data.entries[*e], i, i == data.select)?;
-
-            Some((*e, entry))
-        })
-        .collect::<Keyed<_, _>>();
+        .filter_map(|(i, (j, _))| entry(&data.entries[*j], i, i == data.select))
+        .collect::<Vec<_>>();
 
     let shell = layer_shell(
         column((
@@ -164,12 +160,15 @@ fn entry(entry: &DesktopEntry, index: usize, selected: bool) -> Option<impl View
                 },
             };
 
-            row(text(&name)
-                .color(Color::WHITE.fade(0.5))
-                .family("Ubuntu Light"))
-            .background_color(color)
-            .padding(8.0)
-            .corner(8.0)
+            let name = name.clone();
+            any(transition(color, Ease(0.1), move |color, _| {
+                row(text(&name)
+                    .color(Color::WHITE.fade(0.5))
+                    .family("Ubuntu Light"))
+                .background_color(color)
+                .padding(8.0)
+                .corner(8.0)
+            }))
         })
         .on_press(move |data: &mut Data| {
             data.select = index;
