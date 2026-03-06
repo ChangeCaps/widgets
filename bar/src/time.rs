@@ -3,8 +3,6 @@ use std::time::Duration;
 use chrono::{DateTime, Local};
 use ori_native::{Weight, prelude::*};
 
-use crate::theme;
-
 pub struct Time {
     time: DateTime<Local>,
 }
@@ -28,6 +26,7 @@ pub fn time(data: &Time) -> impl View<Time> + use<> {
             .weight(Weight::BOLD)
             .family("Ubuntu Light"),
     ))
+    .align_items(Align::Center)
 }
 
 pub fn listen_task() -> impl Effect<Time> {

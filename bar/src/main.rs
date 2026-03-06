@@ -17,16 +17,6 @@ fn main() {
     App::new().run(&mut data, ui).unwrap();
 }
 
-mod theme {
-    use ori_native::prelude::*;
-
-    pub static BACKGROUND: Color = Color::hex("#353535");
-    pub static SURFACE: Color = Color::WHITE.fade(0.27);
-    pub static OUTLINE: Color = Color::hex("#ffffff").fade(0.1);
-    pub static PRIMARY: Color = Color::hex("#a6d189");
-    pub static ACCENT: Color = Color::hex("#b5bfe2");
-}
-
 struct Data {
     hyprland: Hyprland,
     time: Time,
@@ -82,7 +72,9 @@ fn bar(data: &Data, monitor_index: usize) -> impl View<Data> + use<> {
     .padding_bottom(20.0)
     .background_color(theme::BACKGROUND)
     .justify_contents(Justify::SpaceBetween)
-    .align_items(Align::Center);
+    .align_items(Align::Center)
+    .shadow_color(Color::BLACK.fade(0.4))
+    .shadow_radius(8.0);
 
     row((
         map(

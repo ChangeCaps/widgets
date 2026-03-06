@@ -2,8 +2,6 @@ use std::collections::HashSet;
 
 use ori_native::prelude::*;
 
-use crate::theme;
-
 pub struct Menu {
     open: HashSet<usize>,
 }

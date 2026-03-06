@@ -22,13 +22,6 @@ fn main() {
     App::new().run(&mut data, ui).unwrap();
 }
 
-mod theme {
-    use ori_native::prelude::*;
-
-    pub static BACKGROUND: Color = Color::hex("#353535");
-    pub static OUTLINE: Color = Color::hex("#ffffff").fade(0.1);
-}
-
 struct Data {
     entries: Vec<DesktopEntry>,
     sorted: Vec<(usize, u16)>,

@@ -23,13 +23,6 @@ impl Data {
     }
 }
 
-mod theme {
-    use ori_native::prelude::*;
-
-    pub static BACKGROUND: Color = Color::hex("#353535");
-    pub static OUTLINE: Color = Color::hex("#ffffff").fade(0.1);
-}
-
 fn ui(data: &Data) -> impl Effect<Data> + use<> {
     effects((
         (!data.notifications.is_empty()).then(|| {

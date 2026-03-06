@@ -6,8 +6,6 @@ use hyprland::{
 };
 use ori_native::prelude::*;
 
-use crate::theme;
-
 pub struct Hyprland {
     workspaces: Vec<Option<Workspace>>,
     monitors: Vec<Monitor>,
@@ -98,16 +96,13 @@ fn workspace(
 
     transition(height, Ease(0.2), move |height, _| {
         pressable(move |_, _state| {
-            let view = column(())
-                .size(8.0, height)
-                .background_color(theme::OUTLINE)
-                .corner(4.0);
+            let view = column(()).size(8.0, height).corner(4.0);
 
             match kind {
                 Kind::Active => view.background_color(theme::PRIMARY),
                 Kind::Visible => view.background_color(theme::ACCENT),
                 Kind::Used => view.background_color(theme::SURFACE),
-                Kind::Empty => view,
+                Kind::Empty => view.background_color(theme::OUTLINE),
             }
         })
         .on_press(move |_| {

@@ -5,5 +5,7 @@ edition = "2024"
 
 [dependencies]
 ori-native = { workspace = true }
+theme      = { workspace = true }
+
 freedesktop-desktop-entry = "0.8"
 nucleo-matcher = "0.3"

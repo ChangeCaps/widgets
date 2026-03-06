@@ -5,6 +5,8 @@ edition = "2024"
 
 [dependencies]
 ori-native = { workspace = true }
+theme      = { workspace = true }
+
 tokio = { version = "1", features = ["time"] }
 anyhow = "1"
 chrono = "0.4"

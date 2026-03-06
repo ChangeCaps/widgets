@@ -33,15 +33,6 @@ struct Data {
 
 static TIMEOUT: Duration = Duration::from_secs(1);
 
-mod theme {
-    use ori_native::prelude::*;
-
-    pub static BACKGROUND: Color = Color::hex("#353535");
-    pub static OUTLINE: Color = Color::hex("#ffffff").fade(0.1);
-    pub static PRIMARY: Color = Color::hex("#a6d189");
-    pub static ACCENT: Color = Color::hex("#b5bfe2");
-}
-
 fn ui(data: &Data) -> impl Effect<Data> + use<> {
     effects((listen(), data.show.then(|| volume_window(data))))
 }

@@ -68,6 +68,7 @@ dependencies = [
  "gdk4",
  "hyprland",
  "ori-native",
+ "theme",
  "tokio",
 ]
 
@@ -811,6 +812,7 @@ dependencies = [
  "freedesktop-desktop-entry",
  "nucleo-matcher",
  "ori-native",
+ "theme",
 ]
 
 [[package]]
@@ -973,6 +975,7 @@ dependencies = [
  "dbus-crossroads",
  "image",
  "ori-native",
+ "theme",
  "tokio",
 ]
 
@@ -1049,7 +1052,7 @@ source = "git+https://github.com/ori-ui/ori#215167ee5e4abcc4f40c8026e8da35a3d6ed
 [[package]]
 name = "ori-native"
 version = "0.1.0"
-source = "git+https://github.com/ori-ui/ori-native#05728d1436c1def927e09e19e85773772baff120"
+source = "git+https://github.com/ori-ui/ori-native#91fc65c45e869cea324d758057801f68d235ff51"
 dependencies = [
  "ori",
  "ori-native-core",
@@ -1060,7 +1063,7 @@ dependencies = [
 [[package]]
 name = "ori-native-core"
 version = "0.1.0"
-source = "git+https://github.com/ori-ui/ori-native#05728d1436c1def927e09e19e85773772baff120"
+source = "git+https://github.com/ori-ui/ori-native#91fc65c45e869cea324d758057801f68d235ff51"
 dependencies = [
  "keyboard-types",
  "ori",
@@ -1072,7 +1075,7 @@ dependencies = [
 [[package]]
 name = "ori-native-gtk4"
 version = "0.1.0"
-source = "git+https://github.com/ori-ui/ori-native#05728d1436c1def927e09e19e85773772baff120"
+source = "git+https://github.com/ori-ui/ori-native#91fc65c45e869cea324d758057801f68d235ff51"
 dependencies = [
  "gdk4",
  "gio",
@@ -1418,6 +1421,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "83176759e9416cf81ee66cb6508dbfe9c96f20b8b56265a39917551c23c70964"
 
 [[package]]
+name = "theme"
+version = "0.1.0"
+dependencies = [
+ "ori-native",
+]
+
+[[package]]
 name = "thiserror"
 version = "2.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1598,6 +1608,7 @@ version = "0.1.0"
 dependencies = [
  "libpulse-binding",
  "ori-native",
+ "theme",
  "tokio",
 ]
 
