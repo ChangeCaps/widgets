@@ -94,16 +94,19 @@ fn workspace(
         Kind::Empty => 20.0,
     };
 
+    let color = match kind {
+        Kind::Active => theme::PRIMARY,
+        Kind::Visible => theme::ACCENT,
+        Kind::Used => theme::SURFACE,
+        Kind::Empty => theme::OUTLINE,
+    };
+
     transition(height, Ease(0.2), move |height, _| {
         pressable(move |_, _state| {
-            let view = column(()).size(8.0, height).corner(4.0);
-
-            match kind {
-                Kind::Active => view.background_color(theme::PRIMARY),
-                Kind::Visible => view.background_color(theme::ACCENT),
-                Kind::Used => view.background_color(theme::SURFACE),
-                Kind::Empty => view.background_color(theme::OUTLINE),
-            }
+            column(())
+                .size(8.0, height)
+                .corner(4.0)
+                .background_color(color)
         })
         .on_press(move |_| {
             Dispatch::call(DispatchType::Custom(

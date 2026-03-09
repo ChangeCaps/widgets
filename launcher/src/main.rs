@@ -97,45 +97,45 @@ fn ui(data: &Data) -> impl Effect<Data> + use<> {
         .filter_map(|(i, (j, _))| entry(&data.entries[*j], i, i == data.select))
         .collect::<Vec<_>>();
 
-    let shell = layer_shell(
-        column((
-            row(textinput()
-                .text(&data.search)
-                .size(16.0)
-                .flex(1.0)
-                .family("Ubuntu Light")
-                .color(Color::WHITE)
-                .newline(Newline::None)
-                .on_change(Data::search)
-                .on_submit(Data::launch))
-            .padding(8.0)
-            .border_bottom(2.0)
-            .border_color(theme::OUTLINE),
-            vscroll(column(entries)),
-        ))
-        .background_color(theme::BACKGROUND)
-        .border_color(theme::OUTLINE)
-        .border(1.0)
-        .corner(8.0)
-        .padding(12.0)
-        .gap(8.0)
-        .shadow_color(Color::BLACK.fade(0.4))
-        .shadow_radius(8.0)
-        .shadow_offset(2.0, 3.0)
-        .margin(12.0)
-        .size(600.0, 400.0),
-    )
-    .sizing(Sizing::Content)
-    .keyboard(KeyboardInput::OnDemand)
-    .on_key(NamedKey::Escape, Modifiers::empty(), |_| -> () {
-        std::process::exit(0);
-    })
-    .on_key('n', Modifiers::CONTROL, Data::next)
-    .on_key('p', Modifiers::CONTROL, Data::prev)
-    .on_key('j', Modifiers::CONTROL, Data::next)
-    .on_key('k', Modifiers::CONTROL, Data::prev)
-    .on_key(NamedKey::ArrowDown, Modifiers::empty(), Data::next)
-    .on_key(NamedKey::ArrowUp, Modifiers::empty(), Data::prev);
+    let view = column((
+        row(textinput()
+            .text(&data.search)
+            .size(16.0)
+            .flex(1.0)
+            .family("Ubuntu Light")
+            .color(Color::WHITE)
+            .newline(Newline::None)
+            .on_change(Data::search)
+            .on_submit(Data::launch))
+        .padding(8.0)
+        .border_bottom(2.0)
+        .border_color(theme::OUTLINE),
+        vscroll(column(entries)),
+    ))
+    .background_color(theme::BACKGROUND)
+    .border_color(theme::OUTLINE)
+    .border(1.0)
+    .corner(8.0)
+    .padding(12.0)
+    .gap(8.0)
+    .shadow_color(Color::BLACK.fade(0.4))
+    .shadow_radius(8.0)
+    .shadow_offset(2.0, 3.0)
+    .margin(12.0)
+    .size(600.0, 400.0);
+
+    let shell = layer_shell(view)
+        .sizing(Sizing::Content)
+        .keyboard(KeyboardInput::OnDemand)
+        .on_key(NamedKey::Escape, Modifiers::empty(), |_| -> () {
+            std::process::exit(0);
+        })
+        .on_key('n', Modifiers::CONTROL, Data::next)
+        .on_key('p', Modifiers::CONTROL, Data::prev)
+        .on_key('j', Modifiers::CONTROL, Data::next)
+        .on_key('k', Modifiers::CONTROL, Data::prev)
+        .on_key(NamedKey::ArrowDown, Modifiers::empty(), Data::next)
+        .on_key(NamedKey::ArrowUp, Modifiers::empty(), Data::prev);
 
     effects(shell)
 }
