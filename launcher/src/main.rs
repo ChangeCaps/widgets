@@ -60,9 +60,20 @@ impl Data {
                 let name = e.name::<&str>(&[])?;
                 let name = Utf32Str::new(&name, &mut name_buf);
 
-                let score = matcher.fuzzy_match(name, search)?;
+                let mut scores = Vec::new();
+                scores.push(matcher.fuzzy_match(name, search));
 
-                Some((i, score))
+                for keyword in e.keywords::<&str>(&[]).into_iter().flatten() {
+                    let keyword = Utf32Str::new(&keyword, &mut name_buf);
+                    scores.push(matcher.fuzzy_match(keyword, search));
+                }
+
+                for category in e.categories().into_iter().flatten() {
+                    let category = Utf32Str::new(category, &mut name_buf);
+                    scores.push(matcher.fuzzy_match(category, search));
+                }
+
+                scores.into_iter().flatten().max().map(|score| (i, score))
             })
             .collect();
 
@@ -95,6 +106,7 @@ fn ui(data: &Data) -> impl Effect<Data> + use<> {
         .iter()
         .enumerate()
         .filter_map(|(i, (j, _))| entry(&data.entries[*j], i, i == data.select))
+        .take(32)
         .collect::<Vec<_>>();
 
     let view = column((
@@ -153,15 +165,25 @@ fn entry(entry: &DesktopEntry, index: usize, selected: bool) -> Option<impl View
                 },
             };
 
+            let padding = match selected {
+                true => 8.0,
+                false => 0.0,
+            };
+
             let name = name.clone();
-            any(transition(color, Ease(0.1), move |color, _| {
-                row(text(&name)
-                    .color(Color::WHITE.fade(0.5))
-                    .family("Ubuntu Light"))
-                .background_color(color)
-                .padding(8.0)
-                .corner(8.0)
-            }))
+            any(transition(
+                (color, padding),
+                Ease(0.1),
+                move |(color, padding), _| {
+                    row(text(&name)
+                        .color(Color::WHITE.fade(0.5))
+                        .family("Ubuntu Light"))
+                    .background_color(color)
+                    .padding(8.0)
+                    .padding_left(8.0 + padding)
+                    .corner(8.0)
+                },
+            ))
         })
         .on_press(move |data: &mut Data| {
             data.select = index;
