@@ -111,7 +111,7 @@ fn notification(notification: &Notification) -> impl View<Data> + use<> {
         let key = action[0].clone();
         let label = action[1].clone();
 
-        let action = pressable(move |_, state| {
+        let action = pressable(move |state, _| {
             let color = if state.pressed {
                 Color::BLACK.fade(0.05)
             } else if state.hovered {

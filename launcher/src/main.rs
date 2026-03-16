@@ -156,7 +156,7 @@ fn entry(entry: &DesktopEntry, index: usize, selected: bool) -> Option<impl View
     let name = entry.name::<&str>(&[])?.to_string();
 
     Some(
-        pressable(move |_, state| {
+        pressable(move |state, _| {
             let color = match selected {
                 true => Color::BLACK.fade(0.2),
                 false => match state.hovered {

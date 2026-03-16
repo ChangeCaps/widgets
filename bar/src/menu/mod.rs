@@ -19,7 +19,7 @@ impl Menu {
 }
 
 pub fn button(monitor_index: usize) -> impl View<Menu> + use<> {
-    pressable(move |menu: &Menu, state| {
+    pressable(move |state, menu: &Menu| {
         let mut color = match menu.open.contains(&monitor_index) {
             true => theme::ACCENT,
             false => theme::SURFACE,
