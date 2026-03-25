@@ -101,22 +101,18 @@ fn workspace(
         Kind::Empty => theme::OUTLINE,
     };
 
-    transition(height, Ease(0.2), move |height, _| {
-        pressable(move |_, _state| {
-            column(())
-                .size(8.0, height)
-                .corner(4.0)
-                .background_color(color)
-        })
-        .on_press(move |_| {
-            Dispatch::call(DispatchType::Custom(
-                "focusworkspaceoncurrentmonitor",
-                &(index + 1).to_string(),
-            ))
-            .unwrap();
+    transition(height, Ease(0.2), move |_, height| {
+        pressable(move |_, _| column(()).size(8.0, height).corner(4.0).background(color)).on_press(
+            move |_| {
+                Dispatch::call(DispatchType::Custom(
+                    "focusworkspaceoncurrentmonitor",
+                    &(index + 1).to_string(),
+                ))
+                .unwrap();
 
-            Action::new()
-        })
+                Action::new()
+            },
+        )
     })
 }
 

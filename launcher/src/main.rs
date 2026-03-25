@@ -120,13 +120,12 @@ fn ui(data: &Data) -> impl Effect<Data> + use<> {
             .on_change(Data::search)
             .on_submit(Data::launch))
         .padding(8.0)
-        .border_bottom(2.0)
+        .border_bottom_width(2.0)
         .border_color(theme::OUTLINE),
         vscroll(column(entries)),
     ))
-    .background_color(theme::BACKGROUND)
-    .border_color(theme::OUTLINE)
-    .border(1.0)
+    .background(theme::BACKGROUND)
+    .border(1.0, theme::OUTLINE)
     .corner(8.0)
     .padding(12.0)
     .gap(8.0)
@@ -156,7 +155,7 @@ fn entry(entry: &DesktopEntry, index: usize, selected: bool) -> Option<impl View
     let name = entry.name::<&str>(&[])?.to_string();
 
     Some(
-        pressable(move |state, _| {
+        pressable(move |_, state| {
             let color = match selected {
                 true => Color::BLACK.fade(0.2),
                 false => match state.hovered {
@@ -174,11 +173,11 @@ fn entry(entry: &DesktopEntry, index: usize, selected: bool) -> Option<impl View
             any(transition(
                 (color, padding),
                 Ease(0.1),
-                move |(color, padding), _| {
+                move |_, (color, padding)| {
                     row(text(&name)
                         .color(Color::WHITE.fade(0.5))
                         .family("Ubuntu Light"))
-                    .background_color(color)
+                    .background(color)
                     .padding(8.0)
                     .padding_left(8.0 + padding)
                     .corner(8.0)

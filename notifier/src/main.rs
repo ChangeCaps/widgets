@@ -43,7 +43,7 @@ fn ui(data: &Data) -> impl Effect<Data> + use<> {
                 .margin_right(12)
         }),
         freeze(|| {
-            build_with_context(|cx: &mut Context, _| {
+            context(|_, cx: &mut Context| {
                 cx.proxy().spawn(dbus::task(cx.proxy()));
 
                 effects(())
@@ -111,7 +111,7 @@ fn notification(notification: &Notification) -> impl View<Data> + use<> {
         let key = action[0].clone();
         let label = action[1].clone();
 
-        let action = pressable(move |state, _| {
+        let action = pressable(move |_, state| {
             let color = if state.pressed {
                 Color::BLACK.fade(0.05)
             } else if state.hovered {
@@ -121,11 +121,11 @@ fn notification(notification: &Notification) -> impl View<Data> + use<> {
             };
 
             let label = label.clone();
-            any(transition(color, Ease(0.2), move |color, _| {
+            any(transition(color, Ease(0.2), move |_, color| {
                 row(text(&label).size(12.0).color(Color::WHITE.fade(0.8)))
-                    .justify_contents(Justify::Center)
+                    .justify_content(Justify::Center)
                     .padding(12.0)
-                    .background_color(color)
+                    .background(color)
                     .corner(8.0)
                     .flex(1.0)
             }))
@@ -141,20 +141,19 @@ fn notification(notification: &Notification) -> impl View<Data> + use<> {
 
     let actions = row(actions)
         .gap(10.0)
-        .justify_contents(Justify::SpaceBetween);
+        .justify_content(Justify::SpaceBetween);
 
     column((
         header,
         (!notification.actions.is_empty()).then_some(actions),
     ))
-    .background_color(theme::BACKGROUND)
-    .border_color(theme::OUTLINE)
+    .background(theme::BACKGROUND)
     .shadow_color(Color::BLACK.fade(0.4))
     .shadow_radius(8.0)
     .shadow_offset(2.0, 3.0)
     .margin(12.0)
     .padding(16.0)
-    .border(1.0)
+    .border(1.0, theme::OUTLINE)
     .corner(8.0)
     .width(400.0)
     .gap(16.0)
@@ -170,7 +169,7 @@ fn notification_header(notification: &Notification) -> impl View<Data> + use<> {
             .size(8.0)
             .color(Color::WHITE.fade(0.5)),
     ))
-    .justify_contents(Justify::SpaceBetween)
+    .justify_content(Justify::SpaceBetween)
     .flex(1.0);
 
     let summary = text(&notification.summary).size(12.0).color(Color::WHITE);

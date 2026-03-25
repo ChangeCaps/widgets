@@ -1,3 +1,4 @@
+mod battery;
 mod hyprland;
 mod menu;
 mod time;
@@ -5,20 +6,24 @@ mod time;
 use gdk4::{glib::object::Cast, prelude::DisplayExt};
 use ori_native::prelude::*;
 
-use crate::{hyprland::Hyprland, menu::Menu, time::Time};
+use crate::{battery::Battery, hyprland::Hyprland, menu::Menu, time::Time};
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut data = Data {
         hyprland: Hyprland::new(),
+        battery: Battery::new()?,
         time: Time::new(),
         menu: Menu::new(),
     };
 
-    App::new().run(&mut data, ui).unwrap();
+    App::new().run(&mut data, ui)?;
+
+    Ok(())
 }
 
 struct Data {
     hyprland: Hyprland,
+    battery: Battery,
     time: Time,
     menu: Menu,
 }
@@ -48,6 +53,9 @@ fn ui(data: &Data) -> impl Effect<Data> + use<> {
         map(hyprland::listen_task(), |data: &mut Data, lens| {
             lens(&mut data.hyprland)
         }),
+        map(battery::listen_task(), |data: &mut Data, lens| {
+            lens(&mut data.battery)
+        }),
         map(time::listen_task(), |data: &mut Data, lens| {
             lens(&mut data.time)
         }),
@@ -56,22 +64,34 @@ fn ui(data: &Data) -> impl Effect<Data> + use<> {
 
 fn bar(data: &Data, monitor_index: usize) -> impl View<Data> + use<> {
     let bar = column((
-        map(menu::button(monitor_index), |data: &mut Data, map| {
-            map(&mut data.menu)
-        }),
+        // hyprland workspaces
         map(
             hyprland::workspaces(&data.hyprland, monitor_index),
             |data: &mut Data, map| map(&mut data.hyprland),
         ),
-        map(time::time(&data.time), |data: &mut Data, map| {
-            map(&mut data.time)
-        }),
+        // menu button
+        column(map(menu::button(monitor_index), |data: &mut Data, map| {
+            map(&mut data.menu)
+        }))
+        .position(Position::Absolute)
+        .top(20.0),
+        // bottom column
+        column((
+            map(battery::battery(&data.battery), |data: &mut Data, map| {
+                map(&mut data.battery)
+            }),
+            map(time::time(&data.time), |data: &mut Data, map| {
+                map(&mut data.time)
+            }),
+        ))
+        .position(Position::Absolute)
+        .align_items(Align::Center)
+        .bottom(20.0)
+        .gap(20.0),
     ))
-    .padding(12.0)
-    .padding_top(20.0)
-    .padding_bottom(20.0)
-    .background_color(theme::BACKGROUND)
-    .justify_contents(Justify::SpaceBetween)
+    .width(52.0)
+    .background(theme::BACKGROUND)
+    .justify_content(Justify::Center)
     .align_items(Align::Center)
     .shadow_color(Color::BLACK.fade(0.4))
     .shadow_radius(8.0);
@@ -83,5 +103,5 @@ fn bar(data: &Data, monitor_index: usize) -> impl View<Data> + use<> {
         ),
         bar,
     ))
-    .background_color(Color::hex("#282828"))
+    .background(Color::hex("#282828"))
 }

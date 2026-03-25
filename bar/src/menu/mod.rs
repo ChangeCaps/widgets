@@ -19,7 +19,7 @@ impl Menu {
 }
 
 pub fn button(monitor_index: usize) -> impl View<Menu> + use<> {
-    pressable(move |state, menu: &Menu| {
+    pressable(move |menu: &Menu, state| {
         let mut color = match menu.open.contains(&monitor_index) {
             true => theme::ACCENT,
             false => theme::SURFACE,
@@ -31,7 +31,7 @@ pub fn button(monitor_index: usize) -> impl View<Menu> + use<> {
             color = color.fade(0.8);
         }
 
-        transition(color, Ease(0.1), |color, _| {
+        transition(color, Ease(0.1), |_, color| {
             image(include_bytes!("../icon/menu.svg"))
                 .tint(color)
                 .size(28.0, 28.0)
@@ -52,10 +52,10 @@ pub fn contents(menu: &Menu, monitor_index: usize) -> impl View<Menu> + use<> {
         false => 0.0,
     };
 
-    transition(width, Ease(0.4), |width, _| {
+    transition(width, Ease(0.4), |_, width| {
         let contents = column(())
             .width(WIDTH)
-            .justify_contents(Justify::Center)
+            .justify_content(Justify::Center)
             .align_items(Align::Center)
             .flex(0.0);
 
