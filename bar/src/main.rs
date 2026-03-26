@@ -88,7 +88,7 @@ fn bar(data: &Data, monitor_index: usize) -> impl View<Data> + use<> {
             .align_items(Align::Center)
             .corner(8.0)
             .flex(1.0)
-            .padding(2.0)
+            .width(32.0)
             .padding_top(8.0)
             .padding_bottom(8.0),
             map(time::time(&data.time), |data: &mut Data, map| {
@@ -97,7 +97,7 @@ fn bar(data: &Data, monitor_index: usize) -> impl View<Data> + use<> {
         ))
         .justify_content(Justify::End)
         .align_items(Align::Center)
-        .gap(20.0)
+        .gap(16.0)
         .flex(1.0)
         .flex_basis(0.0),
     ))
@@ -109,7 +109,7 @@ fn bar(data: &Data, monitor_index: usize) -> impl View<Data> + use<> {
     .shadow_radius(8.0)
     .padding_top(20.0)
     .padding_bottom(20.0)
-    .gap(20.0);
+    .gap(16.0);
 
     row((
         map(
