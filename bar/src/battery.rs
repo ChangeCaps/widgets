@@ -30,7 +30,7 @@ pub fn battery(_battery: &Battery) -> impl View<Battery> + use<> {
             include_bytes!("icon/battery.svg").as_slice()
         };
 
-        let icon = image(icon).size(28.0, 28.0).tint(Color::BLACK.fade(0.2));
+        let icon = image(icon).size(28.0, 28.0).tint(theme::ACCENT.fade(0.5));
 
         let charge = text(format!(
             "charge: {:02.0}%",

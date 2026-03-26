@@ -64,37 +64,52 @@ fn ui(data: &Data) -> impl Effect<Data> + use<> {
 
 fn bar(data: &Data, monitor_index: usize) -> impl View<Data> + use<> {
     let bar = column((
+        // menu button
+        column(map(menu::button(monitor_index), |data: &mut Data, map| {
+            map(&mut data.menu)
+        }))
+        .justify_content(Justify::Start)
+        .align_items(Align::Center)
+        .flex(1.0)
+        .flex_basis(0.0),
         // hyprland workspaces
         map(
             hyprland::workspaces(&data.hyprland, monitor_index),
             |data: &mut Data, map| map(&mut data.hyprland),
         ),
-        // menu button
-        column(map(menu::button(monitor_index), |data: &mut Data, map| {
-            map(&mut data.menu)
-        }))
-        .position(Position::Absolute)
-        .top(20.0),
         // bottom column
         column((
-            map(battery::battery(&data.battery), |data: &mut Data, map| {
-                map(&mut data.battery)
-            }),
+            column(map(
+                battery::battery(&data.battery),
+                |data: &mut Data, map| map(&mut data.battery),
+            ))
+            .background(Color::BLACK.fade(0.2))
+            .justify_content(Justify::End)
+            .align_items(Align::Center)
+            .corner(8.0)
+            .flex(1.0)
+            .padding(2.0)
+            .padding_top(8.0)
+            .padding_bottom(8.0),
             map(time::time(&data.time), |data: &mut Data, map| {
                 map(&mut data.time)
             }),
         ))
-        .position(Position::Absolute)
+        .justify_content(Justify::End)
         .align_items(Align::Center)
-        .bottom(20.0)
-        .gap(20.0),
+        .gap(20.0)
+        .flex(1.0)
+        .flex_basis(0.0),
     ))
     .width(52.0)
     .background(theme::BACKGROUND)
     .justify_content(Justify::Center)
     .align_items(Align::Center)
     .shadow_color(Color::BLACK.fade(0.4))
-    .shadow_radius(8.0);
+    .shadow_radius(8.0)
+    .padding_top(20.0)
+    .padding_bottom(20.0)
+    .gap(20.0);
 
     row((
         map(
