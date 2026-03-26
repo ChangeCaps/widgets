@@ -40,7 +40,7 @@ pub fn battery(battery: &Battery) -> impl View<Battery> + use<> {
                 include_bytes!("icon/battery.svg").as_slice()
             };
 
-            let icon = image(icon).size(28.0, 28.0).tint(theme::ACCENT.fade(0.5));
+            let icon = image(icon).size(28.0, 28.0).tint(theme::SURFACE.fade(0.8));
 
             let charge = text(format!("charge: {:02.0}%", charge * 100.0,))
                 .color(theme::SURFACE)
@@ -86,8 +86,10 @@ pub fn battery(battery: &Battery) -> impl View<Battery> + use<> {
                 "okay"
             } else if health < 0.90 {
                 "fine"
-            } else {
+            } else if health < 0.95 {
                 "good"
+            } else {
+                "great"
             };
 
             let health = text(format!("health: {health}"))
@@ -102,7 +104,12 @@ pub fn battery(battery: &Battery) -> impl View<Battery> + use<> {
                     .background(theme::BACKGROUND)
                     .border(1.0, Color::BLACK.fade(0.1))
                     .corner(8.0)
-                    .padding(10.0),
+                    .padding(10.0)
+                    .shadow_color(Color::BLACK.fade(0.4))
+                    .shadow_radius(8.0)
+                    .shadow_offset(2.0, 3.0)
+                    .margin_bottom(12.0)
+                    .margin_right(12.0),
             )
             .position(gtk4::Position::Right)
             .is_open(state.hovered))

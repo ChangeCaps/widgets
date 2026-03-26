@@ -2,6 +2,8 @@ use std::collections::HashSet;
 
 use ori_native::prelude::*;
 
+mod power;
+
 pub struct Menu {
     open: HashSet<usize>,
 }
@@ -53,12 +55,17 @@ pub fn contents(menu: &Menu, monitor_index: usize) -> impl View<Menu> + use<> {
     };
 
     transition(width, Ease(0.4), |_, width| {
-        let contents = column(())
+        let contents = column(power::power())
             .width(WIDTH)
-            .justify_content(Justify::Center)
+            .justify_content(Justify::Start)
             .align_items(Align::Center)
+            .padding(20.0)
             .flex(0.0);
 
-        row(contents).width(width).overflow(Overflow::Hidden)
+        row(contents)
+            .width(width)
+            .justify_content(Justify::Start)
+            .align_items(Align::Start)
+            .overflow(Overflow::Hidden)
     })
 }

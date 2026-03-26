@@ -9,6 +9,8 @@ use ori_native::prelude::*;
 use crate::{battery::Battery, hyprland::Hyprland, menu::Menu, time::Time};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    App::init_log();
+
     let mut data = Data {
         hyprland: Hyprland::new(),
         battery: Battery::new()?,
@@ -83,7 +85,7 @@ fn bar(data: &Data, monitor_index: usize) -> impl View<Data> + use<> {
                 battery::battery(&data.battery),
                 |data: &mut Data, map| map(&mut data.battery),
             ))
-            .background(Color::BLACK.fade(0.2))
+            .background(theme::MANTLE)
             .justify_content(Justify::End)
             .align_items(Align::Center)
             .corner(8.0)
