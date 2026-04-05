@@ -3,19 +3,28 @@ mod hyprland;
 mod menu;
 mod time;
 
+use std::{env, fs, path::Path};
+
 use gdk4::{glib::object::Cast, prelude::DisplayExt};
 use ori_native::prelude::*;
+use serde::Deserialize;
 
-use crate::{battery::Battery, hyprland::Hyprland, menu::Menu, time::Time};
+#[derive(Default, Deserialize)]
+struct Config {
+    #[serde(flatten)]
+    menu: menu::Config,
+}
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> eyre::Result<()> {
     App::init_log();
 
+    let config = read_config()?;
+
     let mut data = Data {
-        hyprland: Hyprland::new(),
-        battery: Battery::new()?,
-        time: Time::new(),
-        menu: Menu::new(),
+        hyprland: hyprland::Data::new(),
+        battery: battery::Data::new()?,
+        time: time::Data::new(),
+        menu: menu::Data::new(config.menu),
     };
 
     App::new().run(&mut data, ui)?;
@@ -23,11 +32,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+fn read_config() -> eyre::Result<Config> {
+    let home = env::var("HOME").unwrap_or_else(|_| String::from("~"));
+    let path = Path::new(&home).join(".config/widgets/widgets.toml");
+
+    let Ok(config) = fs::read(path) else {
+        warn!("failed to load config");
+        return Ok(Default::default());
+    };
+
+    Ok(toml::de::from_slice(&config)?)
+}
+
 struct Data {
-    hyprland: Hyprland,
-    battery: Battery,
-    time: Time,
-    menu: Menu,
+    hyprland: hyprland::Data,
+    battery: battery::Data,
+    time: time::Data,
+    menu: menu::Data,
 }
 
 fn ui(data: &Data) -> impl Effect<Data> + use<> {
@@ -52,28 +73,40 @@ fn ui(data: &Data) -> impl Effect<Data> + use<> {
 
     effects((
         shells,
-        map(hyprland::listen_task(), |data: &mut Data, lens| {
-            lens(&mut data.hyprland)
+        map(hyprland::job(), |data: &mut Data, map| {
+            map(&mut data.hyprland)
         }),
-        map(battery::listen_task(), |data: &mut Data, lens| {
-            lens(&mut data.battery)
-        }),
-        map(time::listen_task(), |data: &mut Data, lens| {
-            lens(&mut data.time)
-        }),
+        map(
+            battery::job(),
+            |data: &mut Data, map| map(&mut data.battery),
+        ),
+        map(time::job(), |data: &mut Data, map| map(&mut data.time)),
+        map(menu::job(), |data: &mut Data, map| map(&mut data.menu)),
     ))
 }
 
 fn bar(data: &Data, monitor_index: usize) -> impl View<Data> + use<> {
     let bar = column((
         // menu button
-        column(map(menu::button(monitor_index), |data: &mut Data, map| {
-            map(&mut data.menu)
-        }))
+        column((
+            map(menu::button(monitor_index), |data: &mut Data, map| {
+                map(&mut data.menu)
+            }),
+            column(())
+                .background(theme::MANTLE)
+                .justify_content(Justify::Start)
+                .align_items(Align::Center)
+                .padding_top(8.0)
+                .padding_bottom(8.0)
+                .corner(8.0)
+                .width(32.0)
+                .flex(1.0),
+        ))
         .justify_content(Justify::Start)
         .align_items(Align::Center)
         .flex(1.0)
-        .flex_basis(0.0),
+        .flex_basis(0.0)
+        .gap(32.0),
         // hyprland workspaces
         map(
             hyprland::workspaces(&data.hyprland, monitor_index),
@@ -90,8 +123,6 @@ fn bar(data: &Data, monitor_index: usize) -> impl View<Data> + use<> {
             .align_items(Align::Center)
             .padding_top(8.0)
             .padding_bottom(8.0)
-            .margin_top(32.0)
-            .margin_bottom(16.0)
             .corner(8.0)
             .width(32.0)
             .flex(1.0),
@@ -101,9 +132,9 @@ fn bar(data: &Data, monitor_index: usize) -> impl View<Data> + use<> {
         ))
         .justify_content(Justify::End)
         .align_items(Align::Center)
-        .gap(16.0)
         .flex(1.0)
-        .flex_basis(0.0),
+        .flex_basis(0.0)
+        .gap(32.0),
     ))
     .background(theme::BACKGROUND)
     .justify_content(Justify::Center)
@@ -113,7 +144,7 @@ fn bar(data: &Data, monitor_index: usize) -> impl View<Data> + use<> {
     .padding_top(20.0)
     .padding_bottom(20.0)
     .width(52.0)
-    .gap(16.0);
+    .gap(48.0);
 
     row((
         map(

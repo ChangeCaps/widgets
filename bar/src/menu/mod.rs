@@ -1,17 +1,28 @@
 use std::collections::HashSet;
 
 use ori_native::prelude::*;
+use serde::Deserialize;
 
+mod feed;
 mod power;
 
-pub struct Menu {
+pub struct Data {
     open: HashSet<usize>,
+    feed: feed::Data,
 }
 
-impl Menu {
-    pub fn new() -> Self {
+#[derive(Default, Deserialize)]
+#[serde(default)]
+pub struct Config {
+    #[serde(flatten)]
+    feed: feed::Config,
+}
+
+impl Data {
+    pub fn new(config: Config) -> Self {
         Self {
             open: HashSet::new(),
+            feed: feed::Data::new(config.feed),
         }
     }
 
@@ -20,8 +31,8 @@ impl Menu {
     }
 }
 
-pub fn button(monitor_index: usize) -> impl View<Menu> + use<> {
-    pressable(move |menu: &Menu, state| {
+pub fn button(monitor_index: usize) -> impl View<Data> + use<> {
+    pressable(move |menu: &Data, state| {
         let mut color = match menu.open.contains(&monitor_index) {
             true => theme::ACCENT,
             false => theme::SURFACE,
@@ -46,7 +57,7 @@ pub fn button(monitor_index: usize) -> impl View<Menu> + use<> {
     })
 }
 
-pub fn contents(menu: &Menu, monitor_index: usize) -> impl View<Menu> + use<> {
+pub fn contents(menu: &Data, monitor_index: usize) -> impl View<Data> + use<> {
     const WIDTH: f32 = 500.0;
 
     let width = match menu.is_open(monitor_index) {
@@ -54,18 +65,27 @@ pub fn contents(menu: &Menu, monitor_index: usize) -> impl View<Menu> + use<> {
         false => 0.0,
     };
 
-    transition(width, Ease(0.4), |_, width| {
-        let contents = column(power::power())
-            .width(WIDTH)
-            .justify_content(Justify::Start)
-            .align_items(Align::Center)
-            .padding(20.0)
-            .flex(0.0);
+    transition(width, Ease(0.4), |menu: &Data, width| {
+        let contents = column((
+            power::power(),
+            map(feed::feed(&menu.feed), |menu: &mut Data, map| {
+                map(&mut menu.feed)
+            }),
+        ))
+        .width(WIDTH)
+        .justify_content(Justify::Start)
+        .padding(20.0)
+        .gap(32.0)
+        .flex(0.0);
 
-        row(contents)
+        row(vscroll(contents))
             .width(width)
             .justify_content(Justify::Start)
             .align_items(Align::Start)
             .overflow(Overflow::Hidden)
     })
+}
+
+pub fn job() -> impl Effect<Data> {
+    effects(map(feed::job(), |data: &mut Data, map| map(&mut data.feed)))
 }

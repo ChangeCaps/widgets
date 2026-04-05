@@ -6,12 +6,12 @@ use hyprland::{
 };
 use ori_native::prelude::*;
 
-pub struct Hyprland {
+pub struct Data {
     workspaces: Vec<Option<Workspace>>,
     monitors: Vec<Monitor>,
 }
 
-impl Hyprland {
+impl Data {
     pub fn new() -> Self {
         Self {
             workspaces: Self::fetch_workspaces(),
@@ -37,7 +37,7 @@ impl Hyprland {
     }
 }
 
-pub fn workspaces(data: &Hyprland, monitor_index: usize) -> impl View<Hyprland> + use<> {
+pub fn workspaces(data: &Data, monitor_index: usize) -> impl View<Data> + use<> {
     let workspaces = data
         .workspaces
         .iter()
@@ -56,11 +56,11 @@ pub fn workspaces(data: &Hyprland, monitor_index: usize) -> impl View<Hyprland> 
 }
 
 fn workspace(
-    data: &Hyprland,
+    data: &Data,
     monitor: &Monitor,
     workspace: Option<&Workspace>,
     index: usize,
-) -> impl View<Hyprland> + use<> {
+) -> impl View<Data> + use<> {
     #[derive(Clone, Copy)]
     enum Kind {
         Active,
@@ -116,7 +116,7 @@ fn workspace(
     })
 }
 
-pub fn listen_task() -> impl Effect<Hyprland> {
+pub fn job() -> impl Effect<Data> {
     enum Changed {
         Workspaces,
         Monitors,
@@ -151,13 +151,13 @@ pub fn listen_task() -> impl Effect<Hyprland> {
             .await
             .unwrap();
         },
-        |data: &mut Hyprland, _, message| match message {
+        |data: &mut Data, _, message| match message {
             Changed::Workspaces => {
-                data.workspaces = Hyprland::fetch_workspaces();
+                data.workspaces = Data::fetch_workspaces();
             }
 
             Changed::Monitors => {
-                data.monitors = Hyprland::fetch_monitors();
+                data.monitors = Data::fetch_monitors();
             }
         },
     )

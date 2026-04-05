@@ -2,13 +2,13 @@ use std::time::Duration;
 
 use ori_native::prelude::*;
 
-pub struct Battery {
+pub struct Data {
     version: u64,
     manager: battery::Manager,
     batteries: Vec<battery::Battery>,
 }
 
-impl Battery {
+impl Data {
     pub fn new() -> battery::Result<Self> {
         Ok(Self {
             version: 0,
@@ -20,9 +20,9 @@ impl Battery {
 
 pub const INTERVAL: Duration = Duration::from_secs(2);
 
-pub fn battery(battery: &Battery) -> impl View<Battery> + use<> {
+pub fn battery(battery: &Data) -> impl View<Data> + use<> {
     memo(battery.version, |_| {
-        pressable(move |battery: &Battery, state| {
+        pressable(move |battery: &Data, state| {
             let Some(battery) = battery.batteries.first() else {
                 return any(column(()));
             };
@@ -117,7 +117,7 @@ pub fn battery(battery: &Battery) -> impl View<Battery> + use<> {
     })
 }
 
-pub fn listen_task() -> impl Effect<Battery> {
+pub fn job() -> impl Effect<Data> {
     task(
         |_, sink| async move {
             loop {
@@ -125,7 +125,7 @@ pub fn listen_task() -> impl Effect<Battery> {
                 tokio::time::sleep(INTERVAL).await;
             }
         },
-        |battery: &mut Battery, _, _| {
+        |battery: &mut Data, _, _| {
             battery.version += 1;
             battery.batteries = battery
                 .manager

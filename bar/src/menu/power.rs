@@ -22,7 +22,6 @@ pub fn power<T>() -> impl View<T> {
         row((shutdown, reboot, logout))
             .justify_content(Justify::Center)
             .background(theme::MANTLE)
-            .align_self(Align::Stretch)
             .corner(20.0)
     })
 }

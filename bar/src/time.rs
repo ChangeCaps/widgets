@@ -3,17 +3,17 @@ use std::time::Duration;
 use chrono::{DateTime, Local};
 use ori_native::{Weight, prelude::*};
 
-pub struct Time {
+pub struct Data {
     time: DateTime<Local>,
 }
 
-impl Time {
+impl Data {
     pub fn new() -> Self {
         Self { time: Local::now() }
     }
 }
 
-pub fn time(data: &Time) -> impl View<Time> + use<> {
+pub fn time(data: &Data) -> impl View<Data> + use<> {
     column((
         text(data.time.format("%H").to_string())
             .color(theme::SURFACE)
@@ -29,7 +29,7 @@ pub fn time(data: &Time) -> impl View<Time> + use<> {
     .align_items(Align::Center)
 }
 
-pub fn listen_task() -> impl Effect<Time> {
+pub fn job() -> impl Effect<Data> {
     task(
         |_, sink| async move {
             loop {
@@ -37,7 +37,7 @@ pub fn listen_task() -> impl Effect<Time> {
                 sink.send(());
             }
         },
-        |data: &mut Time, _, _| {
+        |data: &mut Data, _, _| {
             data.time = Local::now();
         },
     )
