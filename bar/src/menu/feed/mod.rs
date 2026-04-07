@@ -50,13 +50,17 @@ impl Data {
     fn compose_feed(&mut self) {
         self.items.sort_by_key(|item| item.time);
         self.items.reverse();
-        self.items.truncate(256);
     }
 }
 
 pub fn feed(data: &Data) -> impl View<Data> + use<> {
     memo(data.version, |data: &Data| {
-        let mut views = vec![];
+        enum Entry {
+            Section(&'static str),
+            Item(usize),
+        }
+
+        let mut items = Vec::new();
 
         let mut today = false;
         let mut yesterday = false;
@@ -70,49 +74,54 @@ pub fn feed(data: &Data) -> impl View<Data> + use<> {
             if item.time.date_naive() == Local::now().date_naive() {
                 if !today {
                     today = true;
-                    views.push(any(section("Today")));
+                    items.push(Entry::Section("Today"));
                 }
             } else if Some(item.time.date_naive()) == Local::now().date_naive().pred_opt() {
                 if !yesterday {
                     yesterday = true;
-                    views.push(any(section("Yesterday")));
+                    items.push(Entry::Section("Yesterday"));
                 }
             } else if item.time.iso_week() == Local::now().iso_week() {
                 if !this_week {
                     this_week = true;
-                    views.push(any(section("This week")));
+                    items.push(Entry::Section("This week"));
                 }
             } else if item.time.iso_week() == one_week_ago().iso_week() {
                 if !last_week {
                     last_week = true;
-                    views.push(any(section("Last week")));
+                    items.push(Entry::Section("Last week"));
                 }
             } else if item.time.month() == Local::now().month()
                 && item.time.year() == Local::now().year()
             {
                 if !this_month {
                     this_month = true;
-                    views.push(any(section("This month")));
+                    items.push(Entry::Section("This month"));
                 }
             } else if item.time.month() == one_month_ago().month()
                 && item.time.year() == one_month_ago().year()
             {
                 if !last_month {
                     last_month = true;
-                    views.push(any(section("Last month")));
+                    items.push(Entry::Section("Last month"));
                 }
             } else if !year {
                 year = true;
-                views.push(any(section("This year")));
+                items.push(Entry::Section("This year"));
             }
 
-            views.push(any(self::item(i)));
+            items.push(Entry::Item(i));
         }
 
-        vscroll(column(views).gap(16.0).padding(10.0))
-            .max_height(800.0)
-            .margin_left(-10.0)
-            .margin_right(-10.0)
+        list(items.len(), move |_, index| match items[index] {
+            Entry::Section(title) => any(section(title)),
+            Entry::Item(index) => any(item(index)),
+        })
+        .padding(10.0)
+        .gap(16.0)
+        .max_height(800.0)
+        .margin_left(-10.0)
+        .margin_right(-10.0)
     })
 }
 
@@ -126,7 +135,7 @@ fn one_month_ago() -> DateTime<Local> {
 
 fn section(name: &str) -> impl View<Data> + use<> {
     text(name)
-        .margin_top(10.0)
+        .margin_top(12.0)
         .color(theme::SURFACE)
         .family("Inter")
         .size(16.0)
@@ -246,6 +255,42 @@ pub fn job() -> impl Effect<Data> {
         }
     }
 
+    fn rss_item(config: &Feed, channel: &rss::Channel, item: &rss::Item) -> Option<Item> {
+        let time = DateTime::parse_from_rfc2822(item.pub_date()?).ok()?;
+
+        Some(Item {
+            channel: channel.title.clone(),
+            title: item.title.clone()?,
+            description: item.description.clone()?,
+            link: item.link.clone(),
+            time: time.with_timezone(&Local),
+            color: Color::hex(&config.color),
+        })
+    }
+
+    fn atom_item(
+        config: &Feed,
+        feed: &atom_syndication::Feed,
+        entry: &atom_syndication::Entry,
+    ) -> Option<Item> {
+        let media = entry.extensions().get("media")?.get("group")?.first()?;
+        let description = media
+            .children()
+            .get("description")?
+            .first()?
+            .value
+            .clone()?;
+
+        Some(Item {
+            channel: feed.title.to_string(),
+            title: entry.title.to_string(),
+            description,
+            link: entry.links().first().map(|link| link.href.clone()),
+            time: entry.published()?.with_timezone(&Local),
+            color: Color::hex(&config.color),
+        })
+    }
+
     task(
         |data: &mut Data, sink| {
             let feeds = data.config.feeds.clone();
@@ -280,40 +325,4 @@ pub fn job() -> impl Effect<Data> {
             data.version += 1;
         },
     )
-}
-
-fn rss_item(config: &Feed, channel: &rss::Channel, item: &rss::Item) -> Option<Item> {
-    let time = DateTime::parse_from_rfc2822(item.pub_date()?).ok()?;
-
-    Some(Item {
-        channel: channel.title.clone(),
-        title: item.title.clone()?,
-        description: item.description.clone()?,
-        link: item.link.clone(),
-        time: time.with_timezone(&Local),
-        color: Color::hex(&config.color),
-    })
-}
-
-fn atom_item(
-    config: &Feed,
-    feed: &atom_syndication::Feed,
-    entry: &atom_syndication::Entry,
-) -> Option<Item> {
-    let media = entry.extensions().get("media")?.get("group")?.first()?;
-    let description = media
-        .children()
-        .get("description")?
-        .first()?
-        .value
-        .clone()?;
-
-    Some(Item {
-        channel: feed.title.to_string(),
-        title: entry.title.to_string(),
-        description,
-        link: entry.links().first().map(|link| link.href.clone()),
-        time: entry.published()?.with_timezone(&Local),
-        color: Color::hex(&config.color),
-    })
 }
