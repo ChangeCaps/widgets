@@ -117,11 +117,9 @@ pub fn feed(data: &Data) -> impl View<Data> + use<> {
             Entry::Section(title) => any(section(title)),
             Entry::Item(index) => any(item(index)),
         })
-        .padding(10.0)
+        .padding_right(10.0)
         .gap(16.0)
         .max_height(800.0)
-        .margin_left(-10.0)
-        .margin_right(-10.0)
     })
 }
 

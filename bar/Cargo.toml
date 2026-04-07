@@ -11,8 +11,14 @@ gdk4 = "0.11"
 chrono = "0.4"
 battery = "0.7"
 reqwest = "0.13"
+futures = "0.3"
 eyre = "0.6"
 toml = "1"
+
+[dependencies.zbus]
+version = "5"
+default-features = false
+features = ["tokio"]
 
 [dependencies.rss]
 version = "2"

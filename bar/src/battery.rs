@@ -16,14 +16,18 @@ impl Data {
             batteries: Vec::new(),
         })
     }
+
+    pub fn show(&self) -> bool {
+        !self.batteries.is_empty()
+    }
 }
 
 pub const INTERVAL: Duration = Duration::from_secs(2);
 
-pub fn battery(battery: &Data) -> impl View<Data> + use<> {
-    memo(battery.version, |_| {
-        pressable(move |battery: &Data, state| {
-            let Some(battery) = battery.batteries.first() else {
+pub fn icon(data: &Data) -> impl View<Data> + use<> {
+    memo(data.version, |_| {
+        pressable(move |data: &Data, state| {
+            let Some(battery) = data.batteries.first() else {
                 return any(column(()));
             };
 
@@ -108,8 +112,7 @@ pub fn battery(battery: &Data) -> impl View<Data> + use<> {
                     .shadow_color(Color::BLACK.fade(0.4))
                     .shadow_radius(8.0)
                     .shadow_offset(2.0, 3.0)
-                    .margin_bottom(12.0)
-                    .margin_right(12.0),
+                    .margin(12.0),
             )
             .position(gtk4::Position::Right)
             .is_open(state.hovered))
@@ -125,15 +128,12 @@ pub fn job() -> impl Effect<Data> {
                 tokio::time::sleep(INTERVAL).await;
             }
         },
-        |battery: &mut Data, _, _| {
-            battery.version += 1;
-            battery.batteries = battery
-                .manager
-                .batteries()
-                .into_iter()
-                .flatten()
-                .flatten()
-                .collect();
+        |data: &mut Data, _, _| {
+            data.version += 1;
+
+            for battery in &mut data.batteries {
+                let _ = data.manager.refresh(battery);
+            }
         },
     )
 }

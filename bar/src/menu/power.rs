@@ -4,7 +4,7 @@ use ori_native::prelude::*;
 
 pub fn power<T>() -> impl View<T> {
     freeze(|| {
-        let shutdown = button(include_bytes!("../icon/system-shut.svg"), || {
+        let shutdown = button(include_bytes!("../icon/system-off.svg"), || {
             let _ = process::Command::new("shutdown").arg("now").spawn();
         });
 

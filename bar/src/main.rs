@@ -1,6 +1,8 @@
 mod battery;
+mod bluetooth;
 mod hyprland;
 mod menu;
+mod network;
 mod time;
 
 use std::{env, fs, path::Path};
@@ -22,7 +24,9 @@ fn main() -> eyre::Result<()> {
 
     let mut data = Data {
         hyprland: hyprland::Data::new(),
+        bluetooth: bluetooth::Data::new(),
         battery: battery::Data::new()?,
+        network: network::Data::new(),
         time: time::Data::new(),
         menu: menu::Data::new(config.menu),
     };
@@ -46,7 +50,9 @@ fn read_config() -> eyre::Result<Config> {
 
 struct Data {
     hyprland: hyprland::Data,
+    bluetooth: bluetooth::Data,
     battery: battery::Data,
+    network: network::Data,
     time: time::Data,
     menu: menu::Data,
 }
@@ -76,9 +82,16 @@ fn ui(data: &Data) -> impl Effect<Data> + use<> {
         map(hyprland::job(), |data: &mut Data, map| {
             map(&mut data.hyprland)
         }),
+        map(bluetooth::job(), |data: &mut Data, map| {
+            map(&mut data.bluetooth)
+        }),
         map(
             battery::job(),
             |data: &mut Data, map| map(&mut data.battery),
+        ),
+        map(
+            network::job(),
+            |data: &mut Data, map| map(&mut data.network),
         ),
         map(time::job(), |data: &mut Data, map| map(&mut data.time)),
         map(menu::job(), |data: &mut Data, map| map(&mut data.menu)),
@@ -114,9 +127,18 @@ fn bar(data: &Data, monitor_index: usize) -> impl View<Data> + use<> {
         ),
         // bottom column
         column((
-            column(map(
-                battery::battery(&data.battery),
-                |data: &mut Data, map| map(&mut data.battery),
+            column((
+                map(bluetooth::icon(&data.bluetooth), |data: &mut Data, map| {
+                    map(&mut data.bluetooth)
+                }),
+                map(network::icon(&data.network), |data: &mut Data, map| {
+                    map(&mut data.network)
+                }),
+                data.battery.show().then(|| {
+                    map(battery::icon(&data.battery), |data: &mut Data, map| {
+                        map(&mut data.battery)
+                    })
+                }),
             ))
             .background(theme::MANTLE)
             .justify_content(Justify::End)
@@ -125,6 +147,7 @@ fn bar(data: &Data, monitor_index: usize) -> impl View<Data> + use<> {
             .padding_bottom(8.0)
             .corner(8.0)
             .width(32.0)
+            .gap(4.0)
             .flex(1.0),
             map(time::time(&data.time), |data: &mut Data, map| {
                 map(&mut data.time)
