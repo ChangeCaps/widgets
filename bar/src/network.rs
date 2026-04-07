@@ -103,7 +103,10 @@ pub fn job() -> impl Effect<Data> {
             tokio::select! {
                 Some(path) = primary_connection.next() => {
                     let path = path.get().await?;
-                    get_device_kind(&sink, &connection, path).await?;
+
+                    if path.as_str() != "/" {
+                        get_device_kind(&sink, &connection, path).await?;
+                    }
                 }
 
                 Some(connectivity) = connectivity.next() => {

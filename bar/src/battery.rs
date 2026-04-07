@@ -44,7 +44,10 @@ pub fn icon(data: &Data) -> impl View<Data> + use<> {
                 include_bytes!("icon/battery.svg").as_slice()
             };
 
-            let icon = image(icon).size(28.0, 28.0).tint(theme::SURFACE.fade(0.8));
+            let icon = image(icon)
+                .size(24.0, 24.0)
+                .margin(4.0)
+                .tint(theme::YELLOW.fade(0.8));
 
             let charge = text(format!("charge: {:02.0}%", charge * 100.0,))
                 .color(theme::SURFACE)
@@ -102,7 +105,7 @@ pub fn icon(data: &Data) -> impl View<Data> + use<> {
                 .family("Ubuntu Light");
 
             any(gtk4::popover(
-                transform(icon).rotate(-90.0),
+                icon,
                 column((charge, health, time_to_empty, time_to_full))
                     .gap(4.0)
                     .background(theme::BACKGROUND)
@@ -130,10 +133,13 @@ pub fn job() -> impl Effect<Data> {
         },
         |data: &mut Data, _, _| {
             data.version += 1;
-
-            for battery in &mut data.batteries {
-                let _ = data.manager.refresh(battery);
-            }
+            data.batteries = data
+                .manager
+                .batteries()
+                .into_iter()
+                .flatten()
+                .flatten()
+                .collect();
         },
     )
 }
