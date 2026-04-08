@@ -2186,7 +2186,7 @@ dependencies = [
 [[package]]
 name = "ori"
 version = "0.1.0"
-source = "git+https://github.com/ori-ui/ori#14eb310d8314a9dffd3e85360b924884f5f0f4ba"
+source = "git+https://github.com/ori-ui/ori#c9fa87d83dac44d75113f96fe700eff196937e6c"
 dependencies = [
  "seahash",
 ]
@@ -2194,7 +2194,7 @@ dependencies = [
 [[package]]
 name = "ori-native"
 version = "0.1.0"
-source = "git+https://github.com/ori-ui/ori-native#5995a55276b9ee30d4d1be68a761827b72ab1a3a"
+source = "git+https://github.com/ori-ui/ori-native#5d87441afb626e85cf6d1fc59f10161d8045db7e"
 dependencies = [
  "ori",
  "ori-native-android",
@@ -2208,7 +2208,7 @@ dependencies = [
 [[package]]
 name = "ori-native-android"
 version = "0.1.0"
-source = "git+https://github.com/ori-ui/ori-native#5995a55276b9ee30d4d1be68a761827b72ab1a3a"
+source = "git+https://github.com/ori-ui/ori-native#5d87441afb626e85cf6d1fc59f10161d8045db7e"
 dependencies = [
  "jni 0.22.4",
  "ndk-sys",
@@ -2222,20 +2222,19 @@ dependencies = [
 [[package]]
 name = "ori-native-core"
 version = "0.1.0"
-source = "git+https://github.com/ori-ui/ori-native#5995a55276b9ee30d4d1be68a761827b72ab1a3a"
+source = "git+https://github.com/ori-ui/ori-native#5d87441afb626e85cf6d1fc59f10161d8045db7e"
 dependencies = [
  "keyboard-types",
  "ori",
  "seahash",
  "taffy",
- "tokio",
  "tracing",
 ]
 
 [[package]]
 name = "ori-native-gtk4"
 version = "0.1.0"
-source = "git+https://github.com/ori-ui/ori-native#5995a55276b9ee30d4d1be68a761827b72ab1a3a"
+source = "git+https://github.com/ori-ui/ori-native#5d87441afb626e85cf6d1fc59f10161d8045db7e"
 dependencies = [
  "gdk4",
  "gio",
@@ -2256,9 +2255,8 @@ dependencies = [
 [[package]]
 name = "ori-native-macro"
 version = "0.1.0"
-source = "git+https://github.com/ori-ui/ori-native#5995a55276b9ee30d4d1be68a761827b72ab1a3a"
+source = "git+https://github.com/ori-ui/ori-native#5d87441afb626e85cf6d1fc59f10161d8045db7e"
 dependencies = [
- "proc-macro2",
  "quote",
  "syn",
 ]
@@ -3178,9 +3176,9 @@ checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 
 [[package]]
 name = "tokio"
-version = "1.51.0"
+version = "1.51.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2bd1c4c0fc4a7ab90fc15ef6daaa3ec3b893f004f915f2392557ed23237820cd"
+checksum = "f66bf9585cda4b724d3e78ab34b73fb2bbaba9011b9bfdf69dc836382ea13b8c"
 dependencies = [
  "bytes",
  "libc",
@@ -3254,9 +3252,9 @@ dependencies = [
 
 [[package]]
 name = "toml_edit"
-version = "0.25.10+spec-1.1.0"
+version = "0.25.11+spec-1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a82418ca169e235e6c399a84e395ab6debeb3bc90edc959bf0f48647c6a32d1b"
+checksum = "0b59c4d22ed448339746c59b905d24568fcbb3ab65a500494f7b8c3e97739f2b"
 dependencies = [
  "indexmap",
  "toml_datetime",
