@@ -134,10 +134,14 @@ pub fn menu(data: &Data) -> impl View<Data> + use<> {
             })
         });
 
-        let devices = data
-            .devices
-            .iter()
-            .map(|(path, device)| (device.addr.clone(), self::device(path, device)));
+        let mut devices = data.devices.iter().collect::<Vec<_>>();
+
+        devices.sort_by(|(_, a), (_, b)| {
+            let paired = b.paired.cmp(&a.paired);
+            let name = a.name.cmp(&b.name);
+
+            paired.then(name)
+        });
 
         column((
             row((
@@ -150,7 +154,10 @@ pub fn menu(data: &Data) -> impl View<Data> + use<> {
             ))
             .justify_content(Justify::SpaceBetween)
             .align_items(Align::Center),
-            keyed(devices),
+            devices
+                .into_iter()
+                .map(|(path, device)| (path.clone(), self::device(path, device)))
+                .collect::<Keyed<_, _>>(),
         ))
         .gap(12.0)
     })
