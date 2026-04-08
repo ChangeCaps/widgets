@@ -2,17 +2,17 @@ use std::process;
 
 use ori_native::prelude::*;
 
-pub fn power<T>() -> impl View<T> {
+pub fn menu<T>() -> impl View<T> {
     freeze(|| {
-        let shutdown = button(include_bytes!("../icon/system-off.svg"), || {
+        let shutdown = button(include_bytes!("icon/system-off.svg"), || {
             let _ = process::Command::new("shutdown").arg("now").spawn();
         });
 
-        let reboot = button(include_bytes!("../icon/system-restart.svg"), || {
+        let reboot = button(include_bytes!("icon/system-restart.svg"), || {
             let _ = process::Command::new("reboot").spawn();
         });
 
-        let logout = button(include_bytes!("../icon/system-logout.svg"), || {
+        let logout = button(include_bytes!("icon/system-logout.svg"), || {
             let _ = process::Command::new("hyprctl")
                 .arg("dispatch")
                 .arg("exit")

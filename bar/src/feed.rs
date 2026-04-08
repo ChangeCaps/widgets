@@ -53,7 +53,7 @@ impl Data {
     }
 }
 
-pub fn feed(data: &Data) -> impl View<Data> + use<> {
+pub fn menu(data: &Data) -> impl View<Data> + use<> {
     memo(data.version, |data: &Data| {
         enum Entry {
             Section(&'static str),
@@ -113,13 +113,18 @@ pub fn feed(data: &Data) -> impl View<Data> + use<> {
             items.push(Entry::Item(i));
         }
 
-        list(items.len(), move |_, index| match items[index] {
-            Entry::Section(title) => any(section(title)),
-            Entry::Item(index) => any(item(index)),
-        })
-        .padding_right(10.0)
-        .gap(16.0)
-        .max_height(800.0)
+        column(
+            list(items.len(), move |_, index| match items[index] {
+                Entry::Section(title) => any(section(title)),
+                Entry::Item(index) => any(item(index)),
+            })
+            .padding(10.0)
+            .gap(16.0)
+            .max_height(800.0),
+        )
+        .background(Color::BLACK.fade(0.2))
+        .corner(20.0)
+        .overflow(Overflow::Hidden)
     })
 }
 

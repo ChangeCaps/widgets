@@ -7,6 +7,7 @@ pub const OUTLINE: Color = Color::hex("#ffffff").fade(0.1);
 pub const PRIMARY: Color = Color::hex("#a6d189");
 pub const ACCENT: Color = Color::hex("#b5bfe2");
 pub const ROSE: Color = Color::hex("#b75f78");
+pub const BLOOD: Color = Color::hex("#d3594e");
 pub const YELLOW: Color = Color::hex("#d3c463");
 
 pub mod feed {

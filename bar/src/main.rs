@@ -1,11 +1,13 @@
 mod battery;
 mod bluetooth;
+mod feed;
 mod hyprland;
 mod menu;
 mod network;
+mod power;
 mod time;
 
-use std::{env, fs, path::Path};
+use std::{collections::HashSet, env, fs, path::Path};
 
 use gdk4::{glib::object::Cast, prelude::DisplayExt};
 use ori_native::prelude::*;
@@ -14,7 +16,7 @@ use serde::Deserialize;
 #[derive(Default, Deserialize)]
 struct Config {
     #[serde(flatten)]
-    menu: menu::Config,
+    feed: feed::Config,
 }
 
 fn main() -> eyre::Result<()> {
@@ -28,7 +30,8 @@ fn main() -> eyre::Result<()> {
         battery: battery::Data::new()?,
         network: network::Data::new(),
         time: time::Data::new(),
-        menu: menu::Data::new(config.menu),
+        feed: feed::Data::new(config.feed),
+        open: HashSet::new(),
     };
 
     App::new().run(&mut data, ui)?;
@@ -54,7 +57,8 @@ struct Data {
     battery: battery::Data,
     network: network::Data,
     time: time::Data,
-    menu: menu::Data,
+    feed: feed::Data,
+    open: HashSet<usize>,
 }
 
 fn ui(data: &Data) -> impl Effect<Data> + use<> {
@@ -94,7 +98,7 @@ fn ui(data: &Data) -> impl Effect<Data> + use<> {
             |data: &mut Data, map| map(&mut data.network),
         ),
         map(time::job(), |data: &mut Data, map| map(&mut data.time)),
-        map(menu::job(), |data: &mut Data, map| map(&mut data.menu)),
+        map(feed::job(), |data: &mut Data, map| map(&mut data.feed)),
     ))
 }
 
@@ -102,9 +106,7 @@ fn bar(data: &Data, monitor_index: usize) -> impl View<Data> + use<> {
     let bar = column((
         // menu button
         column((
-            map(menu::button(monitor_index), |data: &mut Data, map| {
-                map(&mut data.menu)
-            }),
+            menu::button(monitor_index),
             column(())
                 .background(theme::MANTLE)
                 .justify_content(Justify::Start)
@@ -169,12 +171,5 @@ fn bar(data: &Data, monitor_index: usize) -> impl View<Data> + use<> {
     .width(52.0)
     .gap(48.0);
 
-    row((
-        map(
-            menu::contents(&data.menu, monitor_index),
-            |data: &mut Data, map| map(&mut data.menu),
-        ),
-        bar,
-    ))
-    .background(Color::hex("#282828"))
+    row((menu::contents(data, monitor_index), bar)).background(Color::hex("#282828"))
 }
