@@ -49,7 +49,7 @@ fn ui(data: &Data) -> impl Effect<Data> + use<> {
                 effects(())
             })
         }),
-        receive(|data: &mut Data, message| match message {
+        receive(None, |data: &mut Data, message| match message {
             NotifyMessage::Connected(connection) => {
                 data.connection = Some(connection);
 
