@@ -51,7 +51,7 @@ pub fn icon(data: &Data) -> impl View<Data> + use<> {
     memo(data.version, |_| {
         pressable(|data: &Data, state| {
             let mut color = match data.enabled {
-                true => theme::ACCENT.fade(0.8),
+                true => theme::PRIMARY.fade(0.8),
                 false => theme::SURFACE.fade(0.8),
             };
 
@@ -107,7 +107,7 @@ pub fn menu(data: &Data) -> impl View<Data> + use<> {
     memo(data.version, |data: &Data| {
         let discover = pressable(|data: &Data, state| {
             let mut color = match data.discovering {
-                true => theme::PRIMARY,
+                true => theme::GREEN,
                 false => theme::SURFACE,
             };
 
@@ -214,7 +214,7 @@ fn connect_button(path: &OwnedObjectPath, device: &Device) -> impl View<Data> + 
             false => include_bytes!("icon/bluetooth.svg"),
         },
         match device.connected {
-            true => theme::ACCENT,
+            true => theme::PRIMARY,
             false => Color::BLACK.fade(0.3),
         },
         {

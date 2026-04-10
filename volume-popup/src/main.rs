@@ -43,7 +43,7 @@ fn volume_window(data: &Data) -> impl Effect<Data> + use<> {
             volume_bar(data.volume),
             image(include_bytes!("icon/sound-high.svg"))
                 .size(32.0, 32.0)
-                .tint(theme::ACCENT),
+                .tint(theme::PRIMARY),
         ))
         .gap(20.0)
         .padding(24.0)
@@ -69,7 +69,7 @@ fn volume_window(data: &Data) -> impl Effect<Data> + use<> {
 fn volume_bar(fraction: f32) -> impl View<Data> + use<> {
     transition(fraction, Ease(0.05), |_, fraction| {
         row(row(())
-            .background(theme::PRIMARY)
+            .background(theme::GREEN)
             .width(Fract(fraction))
             .corner(4.0))
         .background(Color::BLACK.fade(0.4))

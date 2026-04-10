@@ -6,6 +6,7 @@ mod menu;
 mod network;
 mod power;
 mod time;
+mod views;
 
 use std::{collections::HashSet, env, fs, path::Path};
 

@@ -29,11 +29,11 @@ pub fn menu<T>() -> impl View<T> {
 fn button<T>(icon: &'static [u8], mut on_press: impl FnMut() + 'static) -> impl View<T> {
     pressable(move |_, state| {
         let color = if state.pressed {
-            theme::ACCENT.darken(0.2)
+            theme::PRIMARY.darken(0.2)
         } else if state.hovered {
-            theme::ACCENT.darken(0.1)
+            theme::PRIMARY.darken(0.1)
         } else {
-            theme::ACCENT
+            theme::PRIMARY
         };
 
         transition(color, Ease(0.1), move |_, color| {

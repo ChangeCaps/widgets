@@ -5,7 +5,7 @@ use crate::{Data, bluetooth, feed, power};
 pub fn button(monitor_index: usize) -> impl View<Data> + use<> {
     pressable(move |data: &Data, state| {
         let mut color = match data.open.contains(&monitor_index) {
-            true => theme::ACCENT,
+            true => theme::PRIMARY,
             false => theme::SURFACE,
         };
 

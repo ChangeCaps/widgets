@@ -95,8 +95,8 @@ fn workspace(
     };
 
     let color = match kind {
-        Kind::Active => theme::PRIMARY,
-        Kind::Visible => theme::ACCENT,
+        Kind::Active => theme::GREEN,
+        Kind::Visible => theme::PRIMARY,
         Kind::Used => theme::SURFACE,
         Kind::Empty => theme::OUTLINE,
     };

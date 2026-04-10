@@ -1,6 +1,8 @@
 use futures::stream::StreamExt;
 use ori_native::prelude::*;
 
+use crate::views::tooltip;
+
 pub struct Data {
     version: u64,
     id: Option<String>,
@@ -32,46 +34,33 @@ impl Data {
 }
 
 pub fn icon(data: &Data) -> impl View<Data> + use<> {
-    memo(data.version, |_| {
-        pressable(|data: &Data, state| {
-            let icon: &[u8] = match data.device_kind {
-                Some(DeviceKind::Ethernet) => match data.connectivity {
-                    Connectivity::None => include_bytes!("icon/network-off.svg"),
-                    Connectivity::Full => include_bytes!("icon/network.svg"),
-                },
+    memo(data.version, |data: &Data| {
+        let icon: &[u8] = match data.device_kind {
+            Some(DeviceKind::Ethernet) => match data.connectivity {
+                Connectivity::None => include_bytes!("icon/network-off.svg"),
+                Connectivity::Full => include_bytes!("icon/network.svg"),
+            },
 
-                Some(DeviceKind::Wifi) | None => match data.connectivity {
-                    Connectivity::None => include_bytes!("icon/wifi-off.svg"),
-                    Connectivity::Full => include_bytes!("icon/wifi.svg"),
-                },
-            };
+            Some(DeviceKind::Wifi) | None => match data.connectivity {
+                Connectivity::None => include_bytes!("icon/wifi-off.svg"),
+                Connectivity::Full => include_bytes!("icon/wifi.svg"),
+            },
+        };
 
-            let id = data.id.as_ref().map(|id| {
-                text(id)
-                    .color(theme::SURFACE)
-                    .size(12.0)
-                    .family("Ubuntu Light")
-            });
+        let id = data.id.as_ref().map(|id| {
+            text(id)
+                .color(theme::SURFACE)
+                .size(12.0)
+                .family("Ubuntu Light")
+        });
 
-            gtk4::popover(
-                image(icon)
-                    .size(24.0, 24.0)
-                    .margin(4.0)
-                    .tint(theme::ROSE.fade(0.8)),
-                column(id)
-                    .gap(4.0)
-                    .background(theme::BACKGROUND)
-                    .border(1.0, Color::BLACK.fade(0.1))
-                    .corner(8.0)
-                    .padding(10.0)
-                    .shadow_color(Color::BLACK.fade(0.4))
-                    .shadow_radius(8.0)
-                    .shadow_offset(2.0, 3.0)
-                    .margin(12.0),
-            )
-            .position(gtk4::Position::Right)
-            .is_open(state.hovered)
-        })
+        tooltip(
+            image(icon)
+                .size(24.0, 24.0)
+                .margin(4.0)
+                .tint(theme::ROSE.fade(0.8)),
+            id,
+        )
     })
 }
 
