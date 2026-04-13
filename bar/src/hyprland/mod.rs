@@ -38,19 +38,13 @@ impl Data {
 }
 
 pub fn workspaces(data: &Data, monitor_index: usize) -> impl View<Data> + use<> {
-    let workspaces = data
-        .workspaces
-        .iter()
-        .enumerate()
-        .map(|(index, workspace)| {
-            self::workspace(
-                data,
-                &data.monitors[monitor_index],
-                workspace.as_ref(),
-                index,
-            )
-        })
-        .collect::<Vec<_>>();
+    let workspaces = data.monitors.get(monitor_index).map(|monitor| {
+        data.workspaces
+            .iter()
+            .enumerate()
+            .map(|(i, ws)| self::workspace(data, monitor, ws.as_ref(), i))
+            .collect::<Vec<_>>()
+    });
 
     column(workspaces).gap(8.0).align_items(Align::Center)
 }
