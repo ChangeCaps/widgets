@@ -31,7 +31,7 @@ fn main() -> eyre::Result<()> {
         battery: battery::Data::new()?,
         network: network::Data::new(),
         time: time::Data::new(),
-        feed: feed::Data::new(config.feed),
+        feed: feed::Data::new(config.feed)?,
         open: HashSet::new(),
     };
 

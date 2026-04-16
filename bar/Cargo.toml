@@ -8,13 +8,17 @@ ori-native = { workspace = true }
 theme      = { workspace = true }
 
 gdk4 = "0.11"
-chrono = "0.4"
 battery = "0.7"
 reqwest = "0.13"
 futures = "0.3"
 eyre = "0.6"
 toml = "1"
 notify-rust = "4"
+ron = "0.12"
+
+[dependencies.chrono]
+version = "0.4"
+features = ["serde"]
 
 [dependencies.zbus]
 version = "5"

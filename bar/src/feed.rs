@@ -1,14 +1,20 @@
-use std::{process, time::Duration};
+use std::{
+    collections::BTreeMap,
+    env, fs,
+    path::{Path, PathBuf},
+    process,
+    time::Duration,
+};
 
 use chrono::{DateTime, Datelike, Days, Local, Months};
 use ori_native::prelude::*;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 const INTERVAL: Duration = Duration::from_mins(20);
 
 pub struct Data {
     config: Config,
-    items: Vec<Item>,
+    items: BTreeMap<Key, Item>,
     version: u64,
 }
 
@@ -21,35 +27,93 @@ pub struct Config {
 #[derive(Clone, Deserialize)]
 pub struct Feed {
     url: String,
-    #[serde(default = "default_feed_color")]
+    #[serde(default = "color::default")]
     color: String,
 }
 
-fn default_feed_color() -> String {
-    String::from("#9e993c")
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+struct Key {
+    time: DateTime<Local>,
+    guid: String,
 }
 
+#[derive(Clone, Serialize, Deserialize)]
 struct Item {
     channel: String,
     title: String,
     description: String,
     link: Option<String>,
-    time: DateTime<Local>,
+    #[serde(with = "color")]
     color: Color,
 }
 
-impl Data {
-    pub fn new(config: Config) -> Self {
-        Self {
-            config,
-            items: Vec::new(),
-            version: 0,
-        }
+mod color {
+    use ori_native::prelude::*;
+    use serde::{Deserialize, Deserializer, Serializer, de::Error};
+
+    pub fn default() -> String {
+        String::from("#9e993c")
     }
 
-    fn compose_feed(&mut self) {
-        self.items.sort_by_key(|item| item.time);
-        self.items.reverse();
+    pub fn serialize<S>(color: &Color, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&color.to_hex())
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Color, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let hex = <&str>::deserialize(deserializer)?;
+        Color::try_hex(hex).ok_or_else(|| D::Error::custom("invalid hex color"))
+    }
+}
+
+impl Data {
+    pub fn new(config: Config) -> eyre::Result<Self> {
+        Ok(Self {
+            config,
+            items: Self::load_items()?,
+            version: 0,
+        })
+    }
+
+    fn path() -> PathBuf {
+        let home = env::var("HOME").unwrap_or_else(|_| String::from("~"));
+
+        Path::new(&home)
+            .join(".local")
+            .join("share")
+            .join("widgets")
+            .join("feed.json")
+    }
+
+    fn store_items(&self) -> eyre::Result<()> {
+        let home = env::var("HOME").unwrap_or_else(|_| String::from("~"));
+
+        let path = Path::new(&home)
+            .join(".local")
+            .join("share")
+            .join("widgets");
+
+        fs::create_dir_all(path)?;
+
+        let json = ron::ser::to_string_pretty(&self.items, Default::default())?;
+        fs::write(Self::path(), json)?;
+
+        Ok(())
+    }
+
+    fn load_items() -> eyre::Result<BTreeMap<Key, Item>> {
+        let Ok(json) = fs::read_to_string(Self::path()) else {
+            return Ok(Default::default());
+        };
+
+        let items = ron::from_str(&json)?;
+
+        Ok(items)
     }
 }
 
@@ -57,7 +121,7 @@ pub fn menu(data: &Data) -> impl View<Data> + use<> {
     memo(data.version, |data: &Data| {
         enum Entry {
             Section(&'static str),
-            Item(usize),
+            Item(Key),
         }
 
         let mut items = Vec::new();
@@ -70,36 +134,36 @@ pub fn menu(data: &Data) -> impl View<Data> + use<> {
         let mut last_month = false;
         let mut year = false;
 
-        for (i, item) in data.items.iter().enumerate() {
-            if item.time.date_naive() == Local::now().date_naive() {
+        for key in data.items.keys().rev() {
+            if key.time.date_naive() == Local::now().date_naive() {
                 if !today {
                     today = true;
                     items.push(Entry::Section("Today"));
                 }
-            } else if Some(item.time.date_naive()) == Local::now().date_naive().pred_opt() {
+            } else if Some(key.time.date_naive()) == Local::now().date_naive().pred_opt() {
                 if !yesterday {
                     yesterday = true;
                     items.push(Entry::Section("Yesterday"));
                 }
-            } else if item.time.iso_week() == Local::now().iso_week() {
+            } else if key.time.iso_week() == Local::now().iso_week() {
                 if !this_week {
                     this_week = true;
                     items.push(Entry::Section("This week"));
                 }
-            } else if item.time.iso_week() == one_week_ago().iso_week() {
+            } else if key.time.iso_week() == one_week_ago().iso_week() {
                 if !last_week {
                     last_week = true;
                     items.push(Entry::Section("Last week"));
                 }
-            } else if item.time.month() == Local::now().month()
-                && item.time.year() == Local::now().year()
+            } else if key.time.month() == Local::now().month()
+                && key.time.year() == Local::now().year()
             {
                 if !this_month {
                     this_month = true;
                     items.push(Entry::Section("This month"));
                 }
-            } else if item.time.month() == one_month_ago().month()
-                && item.time.year() == one_month_ago().year()
+            } else if key.time.month() == one_month_ago().month()
+                && key.time.year() == one_month_ago().year()
             {
                 if !last_month {
                     last_month = true;
@@ -110,13 +174,13 @@ pub fn menu(data: &Data) -> impl View<Data> + use<> {
                 items.push(Entry::Section("This year"));
             }
 
-            items.push(Entry::Item(i));
+            items.push(Entry::Item(key.clone()));
         }
 
         column(
             list(items.len(), move |_, index| match items[index] {
                 Entry::Section(title) => any(section(title)),
-                Entry::Item(index) => any(item(index)),
+                Entry::Item(ref key) => any(item(key)),
             })
             .padding(10.0)
             .gap(16.0)
@@ -145,28 +209,36 @@ fn section(name: &str) -> impl View<Data> + use<> {
         .weight(Weight::BOLD)
 }
 
-fn item(index: usize) -> impl View<Data> + use<> {
-    pressable(move |data: &Data, state| {
-        let item = &data.items[index];
-        gtk4::popover(item_list(item), item_popover(item))
-            .position(gtk4::Position::Right)
-            .is_open(state.hovered)
+fn item(key: &Key) -> impl View<Data> + use<> {
+    pressable({
+        let key = key.clone();
+
+        move |data: &Data, state| {
+            let item = &data.items[&key];
+            gtk4::popover(item_list(&key, item), item_popover(&key, item))
+                .position(gtk4::Position::Right)
+                .is_open(state.hovered)
+        }
     })
-    .on_press(move |data| {
-        if let Some(ref link) = data.items[index].link {
-            let _ = process::Command::new("open").arg(link).spawn();
+    .on_press({
+        let key = key.clone();
+
+        move |data| {
+            if let Some(ref link) = data.items[&key].link {
+                let _ = process::Command::new("open").arg(link).spawn();
+            }
         }
     })
 }
 
-fn item_header<T>(item: &Item, wrap_title: bool) -> impl View<T> + use<T> {
+fn item_header<T>(key: &Key, item: &Item, wrap_title: bool) -> impl View<T> + use<T> {
     let channel = text(&item.channel)
         .color(theme::feed::TEXT)
         .family("Inter")
         .weight(Weight::BOLD)
         .size(12.0);
 
-    let date = text(item.time.format("%a %d/%m/%y %H:%M").to_string())
+    let date = text(key.time.format("%a %d/%m/%y %H:%M").to_string())
         .color(theme::feed::TEXT)
         .family("Inter")
         .weight(Weight::BOLD)
@@ -191,8 +263,8 @@ fn item_header<T>(item: &Item, wrap_title: bool) -> impl View<T> + use<T> {
     })
 }
 
-fn item_list<T>(item: &Item) -> impl View<T> + use<T> {
-    column(item_header(item, false))
+fn item_list<T>(key: &Key, item: &Item) -> impl View<T> + use<T> {
+    column(item_header(key, item, false))
         .background(item.color)
         .padding(8.0)
         .corner(4.0)
@@ -201,8 +273,8 @@ fn item_list<T>(item: &Item) -> impl View<T> + use<T> {
         .shadow_offset(2.0, 2.0)
 }
 
-fn item_popover<T>(item: &Item) -> impl View<T> + use<T> {
-    let header = column(item_header(item, true))
+fn item_popover<T>(key: &Key, item: &Item) -> impl View<T> + use<T> {
+    let header = column(item_header(key, item, true))
         .border_bottom(4.0, theme::feed::TEXT)
         .padding(8.0);
 
@@ -258,24 +330,30 @@ pub fn job() -> impl Effect<Data> {
         }
     }
 
-    fn rss_item(config: &Feed, channel: &rss::Channel, item: &rss::Item) -> Option<Item> {
+    fn rss_item(config: &Feed, channel: &rss::Channel, item: &rss::Item) -> Option<(Key, Item)> {
         let time = DateTime::parse_from_rfc2822(item.pub_date()?).ok()?;
 
-        Some(Item {
+        let key = Key {
+            time: time.with_timezone(&Local),
+            guid: item.guid()?.value.clone(),
+        };
+
+        let item = Item {
             channel: channel.title.clone(),
             title: item.title.clone()?,
             description: item.description.clone()?,
             link: item.link.clone(),
-            time: time.with_timezone(&Local),
             color: Color::hex(&config.color),
-        })
+        };
+
+        Some((key, item))
     }
 
     fn atom_item(
         config: &Feed,
         feed: &atom_syndication::Feed,
         entry: &atom_syndication::Entry,
-    ) -> Option<Item> {
+    ) -> Option<(Key, Item)> {
         let media = entry.extensions().get("media")?.get("group")?.first()?;
         let description = media
             .children()
@@ -284,14 +362,20 @@ pub fn job() -> impl Effect<Data> {
             .value
             .clone()?;
 
-        Some(Item {
+        let key = Key {
+            time: entry.published()?.with_timezone(&Local),
+            guid: entry.id.clone(),
+        };
+
+        let item = Item {
             channel: feed.title.to_string(),
             title: entry.title.to_string(),
             description,
             link: entry.links().first().map(|link| link.href.clone()),
-            time: entry.published()?.with_timezone(&Local),
             color: Color::hex(&config.color),
-        })
+        };
+
+        Some((key, item))
     }
 
     task(
@@ -306,25 +390,26 @@ pub fn job() -> impl Effect<Data> {
             }
         },
         |data, _, message| {
-            data.items.clear();
-
             for (index, channel) in message.channels {
                 for item in channel.items.iter() {
-                    if let Some(item) = rss_item(&data.config.feeds[index], &channel, item) {
-                        data.items.push(item);
+                    if let Some((key, item)) = rss_item(&data.config.feeds[index], &channel, item) {
+                        data.items.insert(key, item);
                     }
                 }
             }
 
             for (index, feed) in message.feeds {
                 for entry in feed.entries.iter() {
-                    if let Some(item) = atom_item(&data.config.feeds[index], &feed, entry) {
-                        data.items.push(item);
+                    if let Some((key, item)) = atom_item(&data.config.feeds[index], &feed, entry) {
+                        data.items.insert(key, item);
                     }
                 }
             }
 
-            data.compose_feed();
+            if let Err(err) = data.store_items() {
+                error!("failed storing feed: {err}");
+            }
+
             data.version += 1;
         },
     )
