@@ -5,6 +5,8 @@ use notify_rust::Notification;
 use ori_native::prelude::*;
 use zbus::zvariant::{ObjectPath, OwnedObjectPath};
 
+use crate::views::tooltip_body;
+
 pub struct Data {
     version: u64,
     enabled: bool,
@@ -61,14 +63,40 @@ pub fn icon(data: &Data) -> impl View<Data> + use<> {
                 color = color.fade(0.9);
             }
 
-            transition(color, Ease(0.1), move |data: &Data, color| {
-                let icon: &[u8] = match data.devices.values().any(|device| device.connected) {
-                    true => include_bytes!("icon/bluetooth-connected.svg"),
-                    false => include_bytes!("icon/bluetooth.svg"),
-                };
+            let mut devices = data
+                .devices
+                .values()
+                .filter(|device| device.connected)
+                .map(|device| {
+                    text(&device.name)
+                        .color(theme::SURFACE)
+                        .size(12.0)
+                        .family("Ubuntu Light")
+                })
+                .collect::<Vec<_>>();
 
-                image(icon).size(24.0, 24.0).margin(4.0).tint(color)
-            })
+            if devices.is_empty() {
+                devices.push(
+                    text("No devices connected")
+                        .color(theme::SURFACE)
+                        .size(12.0)
+                        .family("Ubuntu Light"),
+                );
+            }
+
+            gtk4::popover(
+                transition(color, Ease(0.1), move |data: &Data, color| {
+                    let icon: &[u8] = match data.devices.values().any(|device| device.connected) {
+                        true => include_bytes!("icon/bluetooth-connected.svg"),
+                        false => include_bytes!("icon/bluetooth.svg"),
+                    };
+
+                    image(icon).size(24.0, 24.0).margin(4.0).tint(color)
+                }),
+                tooltip_body(column(devices).gap(8.0)),
+            )
+            .is_open(state.hovered)
+            .position(gtk4::Position::Right)
         })
         .on_press(|data: &mut Data| {
             let connection = data.connection.clone();
@@ -117,9 +145,21 @@ pub fn menu(data: &Data) -> impl View<Data> + use<> {
                 color = color.fade(0.9);
             }
 
-            image(include_bytes!("icon/search.svg"))
-                .size(28.0, 28.0)
-                .tint(color)
+            gtk4::popover(
+                image(include_bytes!("icon/search.svg"))
+                    .size(28.0, 28.0)
+                    .tint(color),
+                tooltip_body(
+                    text(match data.discovering {
+                        true => "Stop device discovery",
+                        false => "Start device discovery",
+                    })
+                    .color(theme::SURFACE)
+                    .size(12.0)
+                    .family("Ubuntu Light"),
+                ),
+            )
+            .is_open(state.hovered)
         })
         .on_press(|data: &mut Data| {
             let connection = data.connection.clone();
@@ -180,7 +220,7 @@ fn device(path: &OwnedObjectPath, device: &Device) -> impl View<Data> + use<> {
     ))
     .justify_content(Justify::SpaceBetween)
     .align_items(Align::Center)
-    .background(theme::ROSE.fade(0.8))
+    .background(theme::ROSE)
     .corner(8.0)
     .padding(8.0)
     .padding_right(16.0)
@@ -216,6 +256,10 @@ fn connect_button(path: &OwnedObjectPath, device: &Device) -> impl View<Data> + 
         match device.connected {
             true => theme::PRIMARY,
             false => Color::BLACK.fade(0.3),
+        },
+        match device.connected {
+            true => "Disconnect",
+            false => "Connect",
         },
         {
             let path = path.clone();
@@ -277,6 +321,10 @@ fn pair_button(path: &OwnedObjectPath, device: &Device) -> impl View<Data> + use
             true => Color::BLACK.fade(0.8),
             false => Color::BLACK.fade(0.3),
         },
+        match device.paired {
+            true => "Unpair",
+            false => "Pair",
+        },
         {
             let path = path.clone();
             let paired = !device.paired;
@@ -318,6 +366,10 @@ fn trust_button(path: &OwnedObjectPath, device: &Device) -> impl View<Data> + us
             true => Color::BLACK.fade(0.8),
             false => Color::BLACK.fade(0.3),
         },
+        match device.trusted {
+            true => "Untrust",
+            false => "Trust",
+        },
         {
             let path = path.clone();
             let trusted = !device.trusted;
@@ -341,6 +393,7 @@ fn trust_button(path: &OwnedObjectPath, device: &Device) -> impl View<Data> + us
 fn button(
     icon: &'static [u8],
     color: Color,
+    tooltip: &'static str,
     on_press: impl FnMut(&mut Data) -> Action + 'static,
 ) -> impl View<Data> {
     pressable({
@@ -353,9 +406,27 @@ fn button(
                 color = color.fade(0.8);
             }
 
-            transition(color, Ease(0.1), move |_, color| {
-                image(icon).size(24.0, 24.0).tint(color)
-            })
+            gtk4::popover(
+                transition(color, Ease(0.1), move |_, color| {
+                    image(icon).size(24.0, 24.0).tint(color)
+                }),
+                column(
+                    text(tooltip)
+                        .size(12.0)
+                        .color(Color::BLACK.fade(0.8))
+                        .family("Inter")
+                        .weight(Weight::SEMI_BOLD),
+                )
+                .background(theme::ROSE)
+                .border(1.0, Color::BLACK.fade(0.1))
+                .corner(8.0)
+                .padding(10.0)
+                .shadow_color(Color::BLACK.fade(0.4))
+                .shadow_radius(8.0)
+                .shadow_offset(2.0, 3.0)
+                .margin(12.0),
+            )
+            .is_open(state.hovered)
         }
     })
     .on_press(on_press)
