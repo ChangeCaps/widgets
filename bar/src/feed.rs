@@ -184,7 +184,7 @@ pub fn menu(data: &Data) -> impl View<Data> + use<> {
             })
             .padding(10.0)
             .gap(16.0)
-            .max_height(800.0),
+            .max_height(500.0),
         )
         .background(Color::BLACK.fade(0.2))
         .corner(20.0)
@@ -215,9 +215,11 @@ fn item(key: &Key) -> impl View<Data> + use<> {
 
         move |data: &Data, state| {
             let item = &data.items[&key];
-            gtk4::popover(item_list(&key, item), item_popover(&key, item))
-                .position(gtk4::Position::Right)
-                .is_open(state.hovered)
+            popup(
+                item_list(&key, item),
+                state.hovered.then(|| item_popup(&key, item)),
+            )
+            .side(Side::Right)
         }
     })
     .on_press({
@@ -273,7 +275,7 @@ fn item_list<T>(key: &Key, item: &Item) -> impl View<T> + use<T> {
         .shadow_offset(2.0, 2.0)
 }
 
-fn item_popover<T>(key: &Key, item: &Item) -> impl View<T> + use<T> {
+fn item_popup<T>(key: &Key, item: &Item) -> impl View<T> + use<T> {
     let header = column(item_header(key, item, true))
         .border_bottom(4.0, theme::feed::TEXT)
         .padding(8.0);
@@ -288,7 +290,7 @@ fn item_popover<T>(key: &Key, item: &Item) -> impl View<T> + use<T> {
     column((header, column(description).padding(8.0)))
         .background(item.color)
         .corner(4.0)
-        .max_width(600.0)
+        .width(600.0)
         .shadow_color(Color::BLACK.fade(0.4))
         .shadow_radius(8.0)
         .shadow_offset(3.0, 2.0)

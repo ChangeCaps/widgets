@@ -137,7 +137,7 @@ fn bar(data: &Data, monitor_index: usize) -> impl View<Data> + use<> {
                 map(network::icon(&data.network), |data: &mut Data, map| {
                     map(&mut data.network)
                 }),
-                data.battery.show().then(|| {
+                data.battery.should_show().then(|| {
                     map(battery::icon(&data.battery), |data: &mut Data, map| {
                         map(&mut data.battery)
                     })

@@ -47,19 +47,19 @@ pub fn icon(data: &Data) -> impl View<Data> + use<> {
             },
         };
 
-        let id = data.id.as_ref().map(|id| {
-            text(id)
-                .color(theme::SURFACE)
-                .size(12.0)
-                .family("Ubuntu Light")
-        });
-
         tooltip(
             image(icon)
                 .size(24.0, 24.0)
                 .margin(4.0)
                 .tint(theme::ROSE.fade(0.8)),
-            id,
+            move |data: &Data| {
+                data.id.as_ref().map(|id| {
+                    text(id)
+                        .color(theme::SURFACE)
+                        .size(12.0)
+                        .family("Ubuntu Light")
+                })
+            },
         )
     })
 }

@@ -1,16 +1,20 @@
 use ori_native::prelude::*;
 
-pub fn tooltip<T>(
+pub fn tooltip<T, V>(
     contents: impl View<T> + 'static,
-    tooltip: impl ViewSeq<T> + 'static,
-) -> impl View<T> {
+    mut tooltip: impl FnMut(&T) -> V + 'static,
+) -> impl View<T>
+where
+    V: ViewSeq<T> + 'static,
+{
     let mut contents = Some(contents);
-    let mut tooltip = Some(tooltip_body(tooltip));
 
-    pressable(move |_, state| {
-        gtk4::popover(maybe(contents.take()), maybe(tooltip.take()))
-            .position(gtk4::Position::Right)
-            .is_open(state.hovered)
+    pressable(move |data, state| {
+        popup(
+            maybe(contents.take()),
+            state.hovered.then(|| tooltip_body(tooltip(data))),
+        )
+        .side(Side::Right)
     })
 }
 

@@ -19,7 +19,7 @@ impl Data {
         })
     }
 
-    pub fn show(&self) -> bool {
+    pub fn should_show(&self) -> bool {
         !self.batteries.is_empty()
     }
 }
@@ -50,35 +50,36 @@ pub fn icon(data: &Data) -> impl View<Data> + use<> {
             .margin(4.0)
             .tint(theme::YELLOW.fade(0.8));
 
-        let charge = pair("Charge", format!("{:02.0}", charge * 100.0));
+        any(tooltip(icon, move |data: &Data| {
+            let battery = data.batteries.first().unwrap();
 
-        let time_to_empty = battery
-            .time_to_empty()
-            .map(|time| pair("Empty", format_time(time.value)));
+            let charge = pair("Charge", format!("{:02.0}", charge * 100.0));
 
-        let time_to_full = battery
-            .time_to_full()
-            .map(|time| pair("Full", format_time(time.value)));
+            let time_to_empty = battery
+                .time_to_empty()
+                .map(|time| pair("Empty", format_time(time.value)));
 
-        let health = battery.state_of_health().value;
-        let health = if health < 0.50 {
-            "bad"
-        } else if health < 0.75 {
-            "okay"
-        } else if health < 0.90 {
-            "fine"
-        } else if health < 0.95 {
-            "good"
-        } else {
-            "great"
-        };
+            let time_to_full = battery
+                .time_to_full()
+                .map(|time| pair("Full", format_time(time.value)));
 
-        let health = pair("Health", health);
+            let health = battery.state_of_health().value;
+            let health = if health < 0.50 {
+                "bad"
+            } else if health < 0.75 {
+                "okay"
+            } else if health < 0.90 {
+                "fine"
+            } else if health < 0.95 {
+                "good"
+            } else {
+                "great"
+            };
 
-        any(tooltip(
-            icon,
-            column((charge, health, time_to_empty, time_to_full)).gap(8.0),
-        ))
+            let health = pair("Health", health);
+
+            column((charge, health, time_to_empty, time_to_full)).gap(8.0)
+        }))
     })
 }
 

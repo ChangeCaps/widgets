@@ -84,7 +84,7 @@ pub fn icon(data: &Data) -> impl View<Data> + use<> {
                 );
             }
 
-            gtk4::popover(
+            popup(
                 transition(color, Ease(0.1), move |data: &Data, color| {
                     let icon: &[u8] = match data.devices.values().any(|device| device.connected) {
                         true => include_bytes!("icon/bluetooth-connected.svg"),
@@ -93,10 +93,9 @@ pub fn icon(data: &Data) -> impl View<Data> + use<> {
 
                     image(icon).size(24.0, 24.0).margin(4.0).tint(color)
                 }),
-                tooltip_body(column(devices).gap(8.0)),
+                (state.hovered).then(|| tooltip_body(column(devices).gap(8.0))),
             )
-            .is_open(state.hovered)
-            .position(gtk4::Position::Right)
+            .side(Side::Right)
         })
         .on_press(|data: &mut Data| {
             let connection = data.connection.clone();
@@ -145,21 +144,22 @@ pub fn menu(data: &Data) -> impl View<Data> + use<> {
                 color = color.fade(0.9);
             }
 
-            gtk4::popover(
+            popup(
                 image(include_bytes!("icon/search.svg"))
                     .size(28.0, 28.0)
                     .tint(color),
-                tooltip_body(
-                    text(match data.discovering {
-                        true => "Stop device discovery",
-                        false => "Start device discovery",
-                    })
-                    .color(theme::SURFACE)
-                    .size(12.0)
-                    .family("Ubuntu Light"),
-                ),
+                state.hovered.then(|| {
+                    tooltip_body(
+                        text(match data.discovering {
+                            true => "Stop device discovery",
+                            false => "Start device discovery",
+                        })
+                        .color(theme::SURFACE)
+                        .size(12.0)
+                        .family("Ubuntu Light"),
+                    )
+                }),
             )
-            .is_open(state.hovered)
         })
         .on_press(|data: &mut Data| {
             let connection = data.connection.clone();
@@ -406,27 +406,28 @@ fn button(
                 color = color.fade(0.8);
             }
 
-            gtk4::popover(
+            popup(
                 transition(color, Ease(0.1), move |_, color| {
                     image(icon).size(24.0, 24.0).tint(color)
                 }),
-                column(
-                    text(tooltip)
-                        .size(12.0)
-                        .color(Color::BLACK.fade(0.8))
-                        .family("Inter")
-                        .weight(Weight::SEMI_BOLD),
-                )
-                .background(theme::ROSE)
-                .border(1.0, Color::BLACK.fade(0.1))
-                .corner(8.0)
-                .padding(10.0)
-                .shadow_color(Color::BLACK.fade(0.4))
-                .shadow_radius(8.0)
-                .shadow_offset(2.0, 3.0)
-                .margin(12.0),
+                state.hovered.then(|| {
+                    column(
+                        text(tooltip)
+                            .size(12.0)
+                            .color(Color::BLACK.fade(0.8))
+                            .family("Inter")
+                            .weight(Weight::SEMI_BOLD),
+                    )
+                    .background(theme::ROSE)
+                    .border(1.0, Color::BLACK.fade(0.1))
+                    .corner(8.0)
+                    .padding(10.0)
+                    .shadow_color(Color::BLACK.fade(0.4))
+                    .shadow_radius(8.0)
+                    .shadow_offset(2.0, 3.0)
+                    .margin(12.0)
+                }),
             )
-            .is_open(state.hovered)
         }
     })
     .on_press(on_press)
