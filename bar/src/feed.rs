@@ -87,7 +87,7 @@ impl Data {
             .join(".local")
             .join("share")
             .join("widgets")
-            .join("feed.json")
+            .join("feed.ron")
     }
 
     fn store_items(&self) -> eyre::Result<()> {

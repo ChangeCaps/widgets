@@ -187,15 +187,14 @@ dependencies = [
 
 [[package]]
 name = "atom_syndication"
-version = "0.12.7"
+version = "0.12.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d2f68d23e2cb4fd958c705b91a6b4c80ceeaf27a9e11651272a8389d5ce1a4a3"
+checksum = "39d8b8ef99e33deb2a51504888222225797f48bace2f0cab01975746a39c05bb"
 dependencies = [
  "chrono",
  "derive_builder",
  "diligent-date-parser",
- "never",
- "quick-xml",
+ "quick-xml 0.39.4",
 ]
 
 [[package]]
@@ -1312,9 +1311,9 @@ dependencies = [
 
 [[package]]
 name = "hashbrown"
-version = "0.17.0"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4f467dd6dccf739c208452f8014c75c18bb8301b050ad1cfb27153803edb0f51"
+checksum = "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a"
 
 [[package]]
 name = "heck"
@@ -1626,7 +1625,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d466e9454f08e4a911e14806c24e16fba1b4c121d1ea474396f396069cf949d9"
 dependencies = [
  "equivalent",
- "hashbrown 0.17.0",
+ "hashbrown 0.17.1",
  "serde",
  "serde_core",
 ]
@@ -2166,7 +2165,7 @@ dependencies = [
 [[package]]
 name = "ori-native"
 version = "0.1.0"
-source = "git+https://github.com/ori-ui/ori-native#857fe57fc5fcfdfe9e3fc38127ca76c0048e93cf"
+source = "git+https://github.com/ori-ui/ori-native#4d1fcdeee627f254d024e035ba8d1c64b4b3632f"
 dependencies = [
  "ori",
  "ori-native-android",
@@ -2180,7 +2179,7 @@ dependencies = [
 [[package]]
 name = "ori-native-android"
 version = "0.1.0"
-source = "git+https://github.com/ori-ui/ori-native#857fe57fc5fcfdfe9e3fc38127ca76c0048e93cf"
+source = "git+https://github.com/ori-ui/ori-native#4d1fcdeee627f254d024e035ba8d1c64b4b3632f"
 dependencies = [
  "jni",
  "ndk-sys",
@@ -2194,7 +2193,7 @@ dependencies = [
 [[package]]
 name = "ori-native-core"
 version = "0.1.0"
-source = "git+https://github.com/ori-ui/ori-native#857fe57fc5fcfdfe9e3fc38127ca76c0048e93cf"
+source = "git+https://github.com/ori-ui/ori-native#4d1fcdeee627f254d024e035ba8d1c64b4b3632f"
 dependencies = [
  "keyboard-types",
  "ori",
@@ -2206,7 +2205,7 @@ dependencies = [
 [[package]]
 name = "ori-native-gtk4"
 version = "0.1.0"
-source = "git+https://github.com/ori-ui/ori-native#857fe57fc5fcfdfe9e3fc38127ca76c0048e93cf"
+source = "git+https://github.com/ori-ui/ori-native#4d1fcdeee627f254d024e035ba8d1c64b4b3632f"
 dependencies = [
  "gdk4",
  "gio",
@@ -2227,7 +2226,7 @@ dependencies = [
 [[package]]
 name = "ori-native-macro"
 version = "0.1.0"
-source = "git+https://github.com/ori-ui/ori-native#857fe57fc5fcfdfe9e3fc38127ca76c0048e93cf"
+source = "git+https://github.com/ori-ui/ori-native#4d1fcdeee627f254d024e035ba8d1c64b4b3632f"
 dependencies = [
  "quote",
  "syn",
@@ -2398,6 +2397,16 @@ name = "quick-xml"
 version = "0.37.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "331e97a1af0bf59823e6eadffe373d7b27f485be8748f71471c662c1f269b7fb"
+dependencies = [
+ "encoding_rs",
+ "memchr",
+]
+
+[[package]]
+name = "quick-xml"
+version = "0.39.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cdcc8dd4e2f670d309a5f0e83fe36dfdc05af317008fea29144da1a2ac858e5e"
 dependencies = [
  "encoding_rs",
  "memchr",
@@ -2622,7 +2631,7 @@ dependencies = [
  "atom_syndication",
  "derive_builder",
  "never",
- "quick-xml",
+ "quick-xml 0.37.5",
 ]
 
 [[package]]
@@ -3035,7 +3044,7 @@ version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b1e66e07de489fe43a46678dd0b8df65e0c973909df1b60ba33874e297ba9b9"
 dependencies = [
- "quick-xml",
+ "quick-xml 0.37.5",
  "thiserror",
  "windows",
  "windows-version",
@@ -3142,9 +3151,9 @@ checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 
 [[package]]
 name = "tokio"
-version = "1.52.2"
+version = "1.52.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "110a78583f19d5cdb2c5ccf321d1290344e71313c6c37d43520d386027d18386"
+checksum = "8fc7f01b389ac15039e4dc9531aa973a135d7a4135281b12d7c1bc79fd57fffe"
 dependencies = [
  "bytes",
  "libc",
