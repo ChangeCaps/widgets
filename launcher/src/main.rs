@@ -101,13 +101,7 @@ impl Data {
 }
 
 fn ui(data: &Data) -> impl Effect<Data> + use<> {
-    let entries = data
-        .sorted
-        .iter()
-        .enumerate()
-        .filter_map(|(i, (j, _))| entry(&data.entries[*j], i, i == data.select))
-        .take(32)
-        .collect::<Vec<_>>();
+    let entries = data.sorted.iter().enumerate().collect::<Vec<_>>();
 
     let view = column((
         row(textinput()
@@ -122,7 +116,10 @@ fn ui(data: &Data) -> impl Effect<Data> + use<> {
         .padding(8.0)
         .border_bottom_width(2.0)
         .border_color(theme::OUTLINE),
-        vscroll(column(entries)),
+        list(entries.len(), move |data: &Data, index| {
+            let (i, _) = data.sorted[index];
+            entry(&data.entries[i], index)
+        }),
     ))
     .background(theme::BACKGROUND)
     .border(1.0, theme::OUTLINE)
@@ -151,41 +148,44 @@ fn ui(data: &Data) -> impl Effect<Data> + use<> {
     effects(shell)
 }
 
-fn entry(entry: &DesktopEntry, index: usize, selected: bool) -> Option<impl View<Data> + use<>> {
-    let name = entry.name::<&str>(&[])?.to_string();
+fn entry(entry: &DesktopEntry, index: usize) -> impl View<Data> + use<> {
+    let name = entry
+        .name::<&str>(&[])
+        .expect("`entry` should have a name")
+        .to_string();
 
-    Some(
-        pressable(move |_, state| {
-            let color = match selected {
-                true => Color::BLACK.fade(0.2),
-                false => match state.hovered {
-                    true => Color::WHITE.fade(0.1),
-                    false => Color::TRANSPARENT,
-                },
-            };
+    pressable(move |data: &Data, state| {
+        let selected = data.select == index;
 
-            let padding = match selected {
-                true => 8.0,
-                false => 0.0,
-            };
+        let color = match selected {
+            true => Color::BLACK.fade(0.2),
+            false => match state.hovered {
+                true => Color::WHITE.fade(0.1),
+                false => Color::TRANSPARENT,
+            },
+        };
 
-            let name = name.clone();
-            any(transition(
-                (color, padding),
-                Ease(0.1),
-                move |_, (color, padding)| {
-                    row(text(&name)
-                        .color(Color::WHITE.fade(0.5))
-                        .family("Ubuntu Light"))
-                    .background(color)
-                    .padding(8.0)
-                    .padding_left(8.0 + padding)
-                    .corner(8.0)
-                },
-            ))
-        })
-        .on_press(move |data: &mut Data| {
-            data.select = index;
-        }),
-    )
+        let padding = match selected {
+            true => 8.0,
+            false => 0.0,
+        };
+
+        let name = name.clone();
+        any(transition(
+            (color, padding),
+            Ease(0.1),
+            move |_, (color, padding)| {
+                row(text(&name)
+                    .color(Color::WHITE.fade(0.5))
+                    .family("Ubuntu Light"))
+                .background(color)
+                .padding(8.0)
+                .padding_left(8.0 + padding)
+                .corner(8.0)
+            },
+        ))
+    })
+    .on_press(move |data: &mut Data| {
+        data.select = index;
+    })
 }
