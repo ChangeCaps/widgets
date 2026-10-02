@@ -82,7 +82,7 @@ impl Data {
         self.select = self.select.min(self.sorted.len().saturating_sub(1));
     }
 
-    fn launch(&mut self, _text: String) {
+    fn launch(&mut self) {
         let (index, _) = self.sorted[self.select];
         let entry = &self.entries[index];
 
@@ -112,7 +112,11 @@ fn ui(data: &Data) -> impl Effect<Data> + use<> {
             .color(Color::WHITE)
             .newline(Newline::Never)
             .on_change(Data::search)
-            .on_submit(Data::launch))
+            .on_submit(|data, _| Data::launch(data))
+            .on_blur(|_| -> () {
+                std::process::exit(0);
+            })
+            .auto_focus(true))
         .padding(8.0)
         .border_bottom_width(2.0)
         .border_color(theme::OUTLINE),
@@ -135,9 +139,6 @@ fn ui(data: &Data) -> impl Effect<Data> + use<> {
     let shell = layer_shell(view)
         .sizing(Sizing::Content)
         .keyboard(KeyboardInput::OnDemand)
-        .on_key(NamedKey::Escape, Modifiers::empty(), |_| -> () {
-            std::process::exit(0);
-        })
         .on_key('n', Modifiers::CONTROL, Data::next)
         .on_key('p', Modifiers::CONTROL, Data::prev)
         .on_key('j', Modifiers::CONTROL, Data::next)
@@ -185,7 +186,5 @@ fn entry(entry: &DesktopEntry, index: usize) -> impl View<Data> + use<> {
             },
         ))
     })
-    .on_press(move |data: &mut Data, _| {
-        data.select = index;
-    })
+    .on_press(|data, _| Data::launch(data))
 }
