@@ -97,7 +97,7 @@ pub fn icon(data: &Data) -> impl View<Data> + use<> {
             )
             .side(Side::Right)
         })
-        .on_press(|data: &mut Data| {
+        .on_press(|data: &mut Data, _| {
             let connection = data.connection.clone();
             let enabled = !data.enabled;
 
@@ -161,7 +161,7 @@ pub fn menu(data: &Data) -> impl View<Data> + use<> {
                 }),
             )
         })
-        .on_press(|data: &mut Data| {
+        .on_press(|data: &mut Data, _| {
             let connection = data.connection.clone();
             let enabled = !data.discovering;
 
@@ -394,7 +394,7 @@ fn button(
     icon: &'static [u8],
     color: Color,
     tooltip: &'static str,
-    on_press: impl FnMut(&mut Data) -> Action + 'static,
+    mut on_press: impl FnMut(&mut Data) -> Action + 'static,
 ) -> impl View<Data> {
     pressable({
         move |_, state| {
@@ -430,7 +430,7 @@ fn button(
             )
         }
     })
-    .on_press(on_press)
+    .on_press(move |data, _| on_press(data))
 }
 
 async fn notify_error(error: &zbus::Error) {

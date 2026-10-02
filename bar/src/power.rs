@@ -40,7 +40,7 @@ fn button<T>(icon: &'static [u8], mut on_press: impl FnMut() + 'static) -> impl 
             row(image(icon).size(48.0, 48.0).tint(color)).padding(16.0)
         })
     })
-    .on_press(move |_| {
+    .on_press(move |_, _| {
         on_press();
         Action::new()
     })

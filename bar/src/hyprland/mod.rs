@@ -97,7 +97,7 @@ fn workspace(
 
     transition(height, Ease(0.2), move |_, height| {
         pressable(move |_, _| column(()).size(8.0, height).corner(4.0).background(color)).on_press(
-            move |_| {
+            move |_, _| {
                 Dispatch::call(DispatchType::Custom(
                     "focusworkspaceoncurrentmonitor",
                     &(index + 1).to_string(),

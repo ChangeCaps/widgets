@@ -111,30 +111,21 @@ fn notification(notification: &Notification) -> impl View<Data> + use<> {
         let key = action[0].clone();
         let label = action[1].clone();
 
-        let action = pressable(move |_, state| {
-            let color = if state.pressed {
-                Color::BLACK.fade(0.05)
-            } else if state.hovered {
-                Color::WHITE.fade(0.1)
-            } else {
-                Color::WHITE.fade(0.075)
-            };
-
-            let label = label.clone();
-            any(transition(color, Ease(0.2), move |_, color| {
-                row(text(&label).size(12.0).color(Color::WHITE.fade(0.8)))
-                    .justify_content(Justify::Center)
-                    .padding(12.0)
-                    .background(color)
-                    .corner(8.0)
-                    .flex(1.0)
-            }))
-        })
-        .on_press(move |data: &mut Data| {
-            if let Some(ref conn) = data.connection {
-                conn.action_invoked(id, key.clone());
-            }
-        });
+        let action = button(
+            text(&label).size(12.0).color(Color::WHITE.fade(0.8)),
+            move |data: &mut Data| {
+                if let Some(ref conn) = data.connection {
+                    conn.action_invoked(id, key.clone());
+                }
+            },
+        )
+        .color(Color::WHITE.fade(0.075))
+        .color_hovered(Color::WHITE.fade(0.1))
+        .color_pressed(Color::BLACK.fade(0.05))
+        .justify_content(Justify::Center)
+        .padding(12.0)
+        .corner(8.0)
+        .flex(1.0);
 
         actions.push(action);
     }
@@ -183,7 +174,7 @@ fn notification_header(notification: &Notification) -> impl View<Data> + use<> {
     let body = text(&notification.body)
         .size(10.0)
         .color(Color::WHITE.fade(0.5))
-        .wrap(Wrap::Word);
+        .wrap(TextWrap::Word);
 
     column((header, (!notification.body.is_empty()).then_some(body)))
         .flex(1.0)

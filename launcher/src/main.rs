@@ -110,7 +110,7 @@ fn ui(data: &Data) -> impl Effect<Data> + use<> {
             .flex(1.0)
             .family("Ubuntu Light")
             .color(Color::WHITE)
-            .newline(Newline::None)
+            .newline(Newline::Never)
             .on_change(Data::search)
             .on_submit(Data::launch))
         .padding(8.0)
@@ -185,7 +185,7 @@ fn entry(entry: &DesktopEntry, index: usize) -> impl View<Data> + use<> {
             },
         ))
     })
-    .on_press(move |data: &mut Data| {
+    .on_press(move |data: &mut Data, _| {
         data.select = index;
     })
 }

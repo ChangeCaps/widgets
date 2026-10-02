@@ -225,7 +225,7 @@ fn item(key: &Key) -> impl View<Data> + use<> {
     .on_press({
         let key = key.clone();
 
-        move |data| {
+        move |data, _| {
             if let Some(ref link) = data.items[&key].link {
                 let _ = process::Command::new("open").arg(link).spawn();
             }
@@ -251,7 +251,11 @@ fn item_header<T>(key: &Key, item: &Item, wrap_title: bool) -> impl View<T> + us
         .family("Inter")
         .weight(Weight::BOLD)
         .size(10.0)
-        .wrap(if wrap_title { Wrap::Word } else { Wrap::None });
+        .wrap(if wrap_title {
+            TextWrap::Word
+        } else {
+            TextWrap::None
+        });
 
     column((
         row((channel, date)).justify_content(Justify::SpaceBetween),
@@ -284,7 +288,7 @@ fn item_popup<T>(key: &Key, item: &Item) -> impl View<T> + use<T> {
         .color(theme::feed::TEXT.lighten(0.12))
         .family("Inter")
         .weight(Weight::BOLD)
-        .wrap(Wrap::Word)
+        .wrap(TextWrap::Word)
         .size(10.0);
 
     column((header, column(description).padding(8.0)))

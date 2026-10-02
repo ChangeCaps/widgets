@@ -21,7 +21,7 @@ pub fn button(monitor_index: usize) -> impl View<Data> + use<> {
                 .size(28.0, 28.0)
         })
     })
-    .on_press(move |data| {
+    .on_press(move |data, _| {
         if !data.open.insert(monitor_index) {
             data.open.remove(&monitor_index);
         }

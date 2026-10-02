@@ -169,6 +169,7 @@ fn bar(data: &Data, monitor_index: usize) -> impl View<Data> + use<> {
     .shadow_radius(8.0)
     .padding_top(20.0)
     .padding_bottom(20.0)
+    .flex(1.0)
     .width(52.0)
     .gap(48.0);
 
