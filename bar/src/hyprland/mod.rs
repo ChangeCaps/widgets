@@ -96,17 +96,22 @@ fn workspace(
     };
 
     transition(height, Ease(0.2), move |_, height| {
-        pressable(move |_, _| column(()).size(8.0, height).corner(4.0).background(color)).on_press(
-            move |_, _| {
-                Dispatch::call(DispatchType::Custom(
-                    "focusworkspaceoncurrentmonitor",
-                    &(index + 1).to_string(),
-                ))
-                .unwrap();
+        pressable(move |_, _| {
+            let actual = height.round();
+            let delta = height - actual;
 
-                Action::new()
-            },
-        )
+            transform(column(()).size(8.0, actual).corner(4.0).background(color))
+                .scale(1.0, 1.0 + (delta / actual))
+        })
+        .on_press(move |_, _| {
+            Dispatch::call(DispatchType::Custom(
+                "focusworkspaceoncurrentmonitor",
+                &(index + 1).to_string(),
+            ))
+            .unwrap();
+
+            Action::new()
+        })
     })
 }
 
