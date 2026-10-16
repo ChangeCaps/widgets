@@ -109,7 +109,7 @@ fn ui(data: &Data) -> impl Effect<Data> + use<> {
             .size(16.0)
             .flex(1.0)
             .family("Ubuntu Light")
-            .color(Color::WHITE)
+            .color(theme::ON_SURFACE)
             .newline(Newline::Never)
             .on_change(Data::search)
             .on_submit(|data, _| Data::launch(data))
@@ -177,7 +177,7 @@ fn entry(entry: &DesktopEntry, index: usize) -> impl View<Data> + use<> {
             Ease(0.1),
             move |_, (color, padding)| {
                 row(text(&name)
-                    .color(Color::WHITE.fade(0.5))
+                    .color(theme::ON_SURFACE_LOW)
                     .family("Ubuntu Light"))
                 .background(color)
                 .padding(8.0)

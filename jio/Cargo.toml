@@ -1,0 +1,29 @@
+[package]
+name = "jio"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["lib", "dylib"]
+
+[dependencies]
+ori-native = { workspace = true }
+theme = { workspace = true }
+
+futures = "0.3"
+eyre = "0.6"
+
+[dependencies.uuid]
+version = "1"
+features = ["v4", "serde"]
+
+[dependencies.serde]
+version = "1"
+features = ["derive"]
+
+[dependencies.bespoke]
+git = "https://github.com/changecaps/bespoke"
+
+[package.metadata.android]
+package = "org.jio.jio"
+targets = ["arm64-v8a", "armeabi-v7a", "x86_64"]

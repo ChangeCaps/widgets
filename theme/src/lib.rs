@@ -10,6 +10,11 @@ pub const ROSE: Color = Color::hex("#d66b89");
 pub const BLOOD: Color = Color::hex("#d3594e");
 pub const YELLOW: Color = Color::hex("#d3c463");
 
+pub const ON_SURFACE: Color = Color::WHITE;
+pub const ON_SURFACE_LOW: Color = Color::WHITE.fade(0.5);
+
+pub const SHADOW: Color = Color::BLACK.fade(0.4);
+
 pub mod feed {
     use ori_native::prelude::*;
 

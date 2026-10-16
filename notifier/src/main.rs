@@ -139,7 +139,7 @@ fn notification(notification: &Notification) -> impl View<Data> + use<> {
         (!notification.actions.is_empty()).then_some(actions),
     ))
     .background(theme::BACKGROUND)
-    .shadow_color(Color::BLACK.fade(0.4))
+    .shadow_color(theme::SHADOW)
     .shadow_radius(8.0)
     .shadow_offset(2.0, 3.0)
     .margin(12.0)
@@ -158,22 +158,24 @@ fn notification_header(notification: &Notification) -> impl View<Data> + use<> {
             .map(|app_icon| image(app_icon.clone()).size(10.0, 10.0)),
         text(&notification.app_name)
             .size(8.0)
-            .color(Color::WHITE.fade(0.5)),
+            .color(theme::ON_SURFACE_LOW),
     ))
     .justify_content(Justify::SpaceBetween)
     .flex(1.0);
 
-    let summary = text(&notification.summary).size(12.0).color(Color::WHITE);
+    let summary = text(&notification.summary)
+        .size(12.0)
+        .color(theme::ON_SURFACE);
 
     let time = text(notification.time.format("%H:%M").to_string())
         .size(8.0)
-        .color(Color::WHITE.fade(0.5));
+        .color(theme::ON_SURFACE_LOW);
 
     let header = column((row((app_line, time)), summary));
 
     let body = text(&notification.body)
         .size(10.0)
-        .color(Color::WHITE.fade(0.5))
+        .color(theme::ON_SURFACE_LOW)
         .wrap(TextWrap::Word);
 
     column((header, (!notification.body.is_empty()).then_some(body)))

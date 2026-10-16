@@ -53,7 +53,7 @@ fn volume_window(data: &Data) -> impl Effect<Data> + use<> {
         .align_items(Align::Center)
         .flex(1.0)
         .background(theme::BACKGROUND)
-        .shadow_color(Color::BLACK.fade(0.4))
+        .shadow_color(theme::SHADOW)
         .shadow_radius(8.0)
         .shadow_offset(2.0, 3.0)
         .margin(12.0)
